@@ -5,7 +5,7 @@ export default interface IUsuarioModel {
     email: string,
     password: string,
     activado: boolean,
-    tokenActivacion: string,
-    tokenReseteo: string,
-    tokenReseteoExp: Date
+    tokenActivacion: string | null,
+    tokenReseteo: string | null,
+    tokenReseteoExp: Date | null
 }

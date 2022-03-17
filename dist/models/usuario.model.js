@@ -40,13 +40,16 @@ const UsuarioSchema = new mongoose_1.Schema({
         default: false
     },
     tokenActivacion: {
-        type: String
+        type: String,
+        default: null
     },
     tokenReseteo: {
-        type: String
+        type: String,
+        default: null
     },
     tokenReseteoExp: {
-        type: Date
+        type: Date,
+        default: null
     }
 });
 UsuarioSchema.pre('save', function (next) {
@@ -54,7 +57,7 @@ UsuarioSchema.pre('save', function (next) {
         if (!this.isModified('password')) {
             next();
         }
-        this.token = this.activo ? null : Auth_class_1.default.genToken();
+        this.tokenActivacion = this.activado ? null : Auth_class_1.default.genToken();
         this.password = yield Auth_class_1.default.genHash(this.password);
     });
 });

@@ -28,20 +28,23 @@ const UsuarioSchema = new Schema<IUsuarioModel>({
         default: false
     },
     tokenActivacion: {
-        type: String
+        type: String,
+        default: null
     },
     tokenReseteo: {
-        type: String
+        type: String,
+        default: null
     },
     tokenReseteoExp: {
-        type: Date
+        type: Date,
+        default: null
     }
 });
 UsuarioSchema.pre('save', async function(next):Promise<void> {
     if (!this.isModified('password')) {
         next();
     }
-    this.token = this.activo ? null : Auth.genToken();
+    this.tokenActivacion = this.activado ? null : Auth.genToken();
     this.password = await Auth.genHash(this.password);
 });
 
