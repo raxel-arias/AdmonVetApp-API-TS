@@ -27,6 +27,15 @@ export default class UsuarioController {
                         msg: 'Password incorrecto',
                         error: true
                     });
+                    return;
+                }
+
+                if (!usuarioFound.activado) {
+                    reject({
+                        status: 403,
+                        msg: 'El usuario no se encuentra activado',
+                        error: true
+                    });
                 }
 
                 const usuarioOutdated = JSON.parse(JSON.stringify(usuarioFound));
@@ -45,7 +54,8 @@ export default class UsuarioController {
                 reject({
                     status: 500,
                     msg: 'Hubo un error al actualizar el usuario',
-                    error
+                    error: true,
+                    details: error
                 });
             }
         });

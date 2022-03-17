@@ -1,4 +1,5 @@
-import { UsuarioSignUp } from '../../interfaces/usuario.interface';
+import Auth from '../../auth/Auth.class';
+import { UsuarioLogin, UsuarioSignUp } from '../../interfaces/usuario.interface';
 import UsuarioModel from '../../models/usuario.model';
 
 export default class AuthController {
@@ -47,8 +48,65 @@ export default class AuthController {
                 reject({
                     status: 500,
                     msg: 'Hubo un error al registrar al usuario',
-                    error
+                    error: true,
+                    details: error
                 });
+            }
+        });
+    }
+
+    public Confirm(token: string): Promise<any> {
+        return new Promise(async (resolve, reject): Promise<any> => {
+
+        });
+    }
+
+    public Login(usuario: UsuarioLogin): Promise<any> {
+        return new Promise(async (resolve, reject): Promise<any> => {
+            try {
+                const usuarioFound = await UsuarioModel.findOne({email: usuario.email});
+
+                if (!usuarioFound) {
+                    reject({
+                        status: 404,
+                        msg: 'Usuario no encontrado',
+                        error: true
+                    });
+                    return;
+                }
+
+                const passwordCorrecto = await Auth.validateHashBcrypt(usuario.password, usuarioFound.password);
+
+                if (!passwordCorrecto) {
+                    reject({
+                        status: 401,
+                        msg: 'Password incorrecto',
+                        error: true
+                    });
+                    return;
+                }
+
+                if (!usuarioFound.activado) {
+                    reject({
+                        status: 409,
+                        msg: 'El usuario no se encuentra activado',
+                        error: true
+                    });
+                    return;
+                }
+
+                resolve({
+                    status: 200,
+                    msg: 'Inicio de Sesión correcto',
+                    jwt: Auth.genJWT({id: usuarioFound._id})
+                });
+            } catch (error) {
+                reject({
+                    status: 500,
+                    msg: 'Hubo un error al iniciar sesión',
+                    error: true,
+                    details: error
+                })
             }
         });
     }

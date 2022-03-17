@@ -12,6 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+const Auth_class_1 = __importDefault(require("../../auth/Auth.class"));
 const usuario_model_1 = __importDefault(require("../../models/usuario.model"));
 class AuthController {
     constructor() { }
@@ -51,7 +52,57 @@ class AuthController {
                 reject({
                     status: 500,
                     msg: 'Hubo un error al registrar al usuario',
-                    error
+                    error: true,
+                    details: error
+                });
+            }
+        }));
+    }
+    Confirm(token) {
+        return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
+        }));
+    }
+    Login(usuario) {
+        return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
+            try {
+                const usuarioFound = yield usuario_model_1.default.findOne({ email: usuario.email });
+                if (!usuarioFound) {
+                    reject({
+                        status: 404,
+                        msg: 'Usuario no encontrado',
+                        error: true
+                    });
+                    return;
+                }
+                const passwordCorrecto = yield Auth_class_1.default.validateHashBcrypt(usuario.password, usuarioFound.password);
+                if (!passwordCorrecto) {
+                    reject({
+                        status: 401,
+                        msg: 'Password incorrecto',
+                        error: true
+                    });
+                    return;
+                }
+                if (!usuarioFound.activado) {
+                    reject({
+                        status: 409,
+                        msg: 'El usuario no se encuentra activado',
+                        error: true
+                    });
+                    return;
+                }
+                resolve({
+                    status: 200,
+                    msg: 'Inicio de Sesión correcto',
+                    jwt: Auth_class_1.default.genJWT({ id: usuarioFound._id })
+                });
+            }
+            catch (error) {
+                reject({
+                    status: 500,
+                    msg: 'Hubo un error al iniciar sesión',
+                    error: true,
+                    details: error
                 });
             }
         }));

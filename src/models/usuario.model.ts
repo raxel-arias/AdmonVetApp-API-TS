@@ -45,6 +45,7 @@ UsuarioSchema.pre('save', async function(next):Promise<void> {
         next();
     }
     this.tokenActivacion = this.activado ? null : Auth.genToken();
+     
     this.password = await Auth.genHash(this.password);
 });
 
