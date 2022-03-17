@@ -1,6 +1,10 @@
 {
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "node_modules",
+    "./node_modules",
+    "./node_modules/*",
+    "./node_modules/@types/node/index.d.ts"
   ],
   "compilerOptions": {
     "baseUrl": ".",
@@ -16,6 +20,8 @@
     "strictPropertyInitialization": false,
     "esModuleInterop": true,
     "experimentalDecorators": true,
-    "emitDecoratorMetadata": true
+    "emitDecoratorMetadata": true,
+    "skipLibCheck": true,
+    "types": []
   }
 }
