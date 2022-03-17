@@ -25,7 +25,7 @@ export default class AuthController {
                     Object.assign(usuarioFound, usuario);
 
                     await usuarioFound.save();
-
+ 
                     resolve({
                         status: 201,
                         msg: `Token de activación generado y enviado a ${usuarioFound.email}`,
@@ -57,7 +57,16 @@ export default class AuthController {
 
     public Confirm(token: string): Promise<any> {
         return new Promise(async (resolve, reject): Promise<any> => {
+            try {
 
+            } catch (error) {
+                reject({
+                    status: 404,
+                    msg: 'Hubo un error al confirmar la cuenta',
+                    error: true,
+                    details: error
+                });
+            }
         });
     }
 

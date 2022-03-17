@@ -60,6 +60,16 @@ class AuthController {
     }
     Confirm(token) {
         return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
+            try {
+            }
+            catch (error) {
+                reject({
+                    status: 404,
+                    msg: 'Hubo un error al confirmar la cuenta',
+                    error: true,
+                    details: error
+                });
+            }
         }));
     }
     Login(usuario) {
