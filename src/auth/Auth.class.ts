@@ -4,6 +4,8 @@ import crypto from 'crypto';
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
 
+import {IJWTUser} from '../interfaces/jwt/jwt.interface';
+
 dotenv.config();
 
 export default class Auth {
@@ -29,7 +31,7 @@ export default class Auth {
         });
     }
 
-    public static async genJWT(data: any): Promise<string> {
+    public static async genJWT(data: IJWTUser): Promise<string> {
         return jwt.sign(data, this._JWT_SECRET, {
             expiresIn: '30d'
         });

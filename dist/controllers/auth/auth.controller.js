@@ -127,11 +127,15 @@ class AuthController {
                     });
                     return;
                 }
+                const jwtToken = yield Auth_class_1.default.genJWT({
+                    id: usuarioFound._id.toString()
+                });
                 resolve({
                     status: 200,
                     msg: 'Inicio de Sesión correcto',
                     data: {
-                        usuarioFound
+                        usuarioFound,
+                        jwtToken
                     }
                 });
             }

@@ -133,11 +133,16 @@ export default class AuthController {
                     return;
                 }
 
+                const jwtToken = await Auth.genJWT({
+                    id: usuarioFound._id.toString()
+                });
+
                 resolve({
                     status: 200,
                     msg: 'Inicio de Sesión correcto',
                     data: {
-                        usuarioFound
+                        usuarioFound,
+                        jwtToken
                     }
                 });
             } catch (error: any) {
