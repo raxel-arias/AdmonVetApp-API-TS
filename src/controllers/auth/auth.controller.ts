@@ -1,3 +1,5 @@
+import moment from 'moment';
+
 import Auth from '../../auth/Auth.class';
 import { PromiseResponse, ResponseError } from '../../interfaces/promise_response.interface';
 import { UsuarioLogin, UsuarioSignUp } from '../../interfaces/usuario.interface';
@@ -94,7 +96,7 @@ export default class AuthController {
                 });
             }
         });
-    }
+    } 
 
     public Login(usuario: UsuarioLogin): Promise<PromiseResponse> {
         return new Promise(async (resolve: (info: PromiseResponse) => void, reject: (reason: ResponseError) => void) => {
@@ -146,5 +148,61 @@ export default class AuthController {
                 });
             }
         })
+    }
+
+    public GenerarTokenRecuperacion(email: string): Promise<PromiseResponse> {
+        return new Promise(async (resolve: (info: PromiseResponse) => void, reject: (reason: ResponseError) => void) => {
+            try {
+                const usuarioFound = await UsuarioModel.findOne({email});
+
+                if (!usuarioFound) {
+                    reject({
+                        status: 404,
+                        msg: 'Usuario no encontrado',
+                        isError: true
+                    });
+                    return;
+                }
+
+                if (usuarioFound && !usuarioFound.activado) {
+                    reject({
+                        status: 403,
+                        msg: 'El usuario no está activado',
+                        isError: true
+                    });
+                    return;
+                }
+
+                const IN_ONE_HOUR = 3600000;
+
+                usuarioFound.tokenActivacion = Auth.genToken();
+                usuarioFound.tokenReseteoExp = new Date(Date.now() + IN_ONE_HOUR);
+
+                await usuarioFound.save();
+
+                resolve({
+                    status: 200,
+                    msg: `Token de recuperación generado y enviado a ${usuarioFound.email}`,
+                    data: {
+                        tokenRecuperacion: usuarioFound.tokenReseteo
+                    }
+                });
+            } catch (error) {
+                reject({
+                    status: 500,
+                    msg: 'Hubo un error al enviar el email',
+                    isError: true,
+                    errorDetails: error
+                }); 
+            }
+        });
+    }
+
+    public ValidarTokenRecuperacion() {
+
+    }
+
+    public ResetearPassword() {
+
     }
 }
