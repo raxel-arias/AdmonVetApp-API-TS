@@ -19,12 +19,12 @@ class UsuarioController {
     ActualizarInfo(usuario) {
         return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
             try {
-                const usuarioFound = yield usuario_model_1.default.findOne({ email: usuario.email });
+                let usuarioFound = yield usuario_model_1.default.findOne({ email: usuario.email });
                 if (!usuarioFound) {
                     reject({
                         status: 404,
                         msg: 'Usuario no encontrado',
-                        error: true
+                        isError: true
                     });
                     return;
                 }
@@ -33,7 +33,7 @@ class UsuarioController {
                     reject({
                         status: 401,
                         msg: 'Password incorrecto',
-                        error: true
+                        isError: true
                     });
                     return;
                 }
@@ -41,7 +41,7 @@ class UsuarioController {
                     reject({
                         status: 403,
                         msg: 'El usuario no se encuentra activado',
-                        error: true
+                        isError: true
                     });
                 }
                 const usuarioOutdated = JSON.parse(JSON.stringify(usuarioFound));
@@ -50,16 +50,18 @@ class UsuarioController {
                 resolve({
                     status: 201,
                     msg: 'Usuario actualizado correctamente',
-                    usuarioOutdated,
-                    usuarioUptaded: usuarioFound
+                    data: {
+                        usuarioOutdated,
+                        usuarioUptaded: usuarioFound
+                    }
                 });
             }
             catch (error) {
                 reject({
                     status: 500,
                     msg: 'Hubo un error al actualizar el usuario',
-                    error: true,
-                    details: error
+                    isError: true,
+                    errorDetails: error
                 });
             }
         }));

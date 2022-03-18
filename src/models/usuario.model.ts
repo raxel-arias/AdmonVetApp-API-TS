@@ -1,8 +1,8 @@
-import {Schema, model, connect} from 'mongoose';
+import {Schema, model} from 'mongoose';
 import Auth from '../auth/Auth.class';
 import IUsuarioModel from '../interfaces/models/usuario_model.interface';
 
-const UsuarioSchema = new Schema<IUsuarioModel>({
+export const UsuarioSchema = new Schema<IUsuarioModel>({
     nombre: {
         type: String,
         required: true

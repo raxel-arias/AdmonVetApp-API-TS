@@ -4,9 +4,9 @@
   "description": "",
   "main": "./dist/index.js",
   "scripts": {
-    "start": "tsc -w",
+    "dev": "tsc -w",
     "serve": "nodemon ./dist/index.js",
-    "build": "tsc && node ./dist/index.js"
+    "start": "tsc && node ./dist/index.js"
   },
   "author": "Raxel Arias",
   "license": "MIT",

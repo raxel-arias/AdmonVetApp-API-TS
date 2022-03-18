@@ -12,9 +12,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.UsuarioSchema = void 0;
 const mongoose_1 = require("mongoose");
 const Auth_class_1 = __importDefault(require("../auth/Auth.class"));
-const UsuarioSchema = new mongoose_1.Schema({
+exports.UsuarioSchema = new mongoose_1.Schema({
     nombre: {
         type: String,
         required: true
@@ -52,7 +53,7 @@ const UsuarioSchema = new mongoose_1.Schema({
         default: null
     }
 });
-UsuarioSchema.pre('save', function (next) {
+exports.UsuarioSchema.pre('save', function (next) {
     return __awaiter(this, void 0, void 0, function* () {
         if (!this.isModified('password')) {
             next();
@@ -61,5 +62,5 @@ UsuarioSchema.pre('save', function (next) {
         this.password = yield Auth_class_1.default.genHash(this.password);
     });
 });
-const UsuarioModel = (0, mongoose_1.model)('Usuarios', UsuarioSchema);
+const UsuarioModel = (0, mongoose_1.model)('Usuarios', exports.UsuarioSchema);
 exports.default = UsuarioModel;

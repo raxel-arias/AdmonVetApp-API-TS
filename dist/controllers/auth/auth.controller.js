@@ -22,52 +22,76 @@ class AuthController {
                 const usuarioFound = yield usuario_model_1.default.findOne({ email: usuario.email });
                 if (usuarioFound && usuarioFound.activado) {
                     reject({
-                        status: 409,
-                        error: true,
-                        msg: 'El email está siendo utilizado por otro usuario',
+                        status: 403,
+                        msg: 'El email ya se encuentra usado por otro usuario',
+                        isError: true,
+                        data: {
+                            email: usuario.email
+                        }
                     });
                     return;
                 }
-                if (usuarioFound && usuarioFound.tokenActivacion && !usuarioFound.activado) {
-                    const tokenEncontrado = 'Se ha encontrado un token de activación previo, se procedió a reemplazarlo';
+                if (usuarioFound && !usuarioFound.activado && usuarioFound.tokenActivacion) {
+                    const alertaToken = 'Se ha encontrado un token antiguo, se procedió a generar uno nuevo';
                     Object.assign(usuarioFound, usuario);
-                    yield usuarioFound.save();
                     resolve({
                         status: 201,
-                        msg: `Token de activación generado y enviado a ${usuarioFound.email}`,
-                        tokenEncontrado,
-                        tokenActivacion: usuarioFound.tokenActivacion,
-                        email: usuarioFound.email
+                        msg: `Se ha enviado un token de activación a ${usuario.email}`,
+                        data: {
+                            alertaToken,
+                            token: usuarioFound.tokenActivacion
+                        }
                     });
                     return;
                 }
                 const usuarioCreado = yield new usuario_model_1.default(usuario).save();
                 resolve({
                     status: 201,
-                    msg: `Usuario creado correctamente, token de activación generado y enviado a ${usuarioCreado.email}`,
-                    usuarioCreado
+                    msg: `Se ha enviado un token de activación a ${usuario.email}`,
+                    data: {
+                        usuarioCreado
+                    }
                 });
             }
             catch (error) {
                 reject({
                     status: 500,
-                    msg: 'Hubo un error al registrar al usuario',
-                    error: true,
-                    details: error
+                    msg: 'Hubo un error al Registrar la Cuenta',
+                    isError: true,
+                    errorDetails: error
                 });
             }
         }));
     }
-    Confirm(token) {
+    ActivarCuenta(token) {
         return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
             try {
+                const usuarioFound = yield usuario_model_1.default.findOne({ tokenActivacion: token });
+                if (!usuarioFound) {
+                    reject({
+                        status: 404,
+                        msg: 'Usuario no encontrado',
+                        isError: true
+                    });
+                    return;
+                }
+                usuarioFound.tokenActivacion = null;
+                usuarioFound.activado = true;
+                yield usuarioFound.save();
+                resolve({
+                    status: 200,
+                    msg: 'Usuario registrado correctamente',
+                    data: {
+                        usuarioRegistrado: usuarioFound
+                    }
+                });
             }
             catch (error) {
                 reject({
-                    status: 404,
-                    msg: 'Hubo un error al confirmar la cuenta',
-                    error: true,
-                    details: error
+                    status: 500,
+                    msg: 'Hubo un error al activar la cuenta',
+                    isError: true,
+                    errorDetails: error
                 });
             }
         }));
@@ -80,39 +104,41 @@ class AuthController {
                     reject({
                         status: 404,
                         msg: 'Usuario no encontrado',
-                        error: true
+                        isError: true
                     });
                     return;
                 }
-                const passwordCorrecto = yield Auth_class_1.default.validateHashBcrypt(usuario.password, usuarioFound.password);
-                if (!passwordCorrecto) {
+                const correctPassword = yield Auth_class_1.default.validateHashBcrypt(usuario.password, usuarioFound.password);
+                if (!correctPassword) {
                     reject({
                         status: 401,
                         msg: 'Password incorrecto',
-                        error: true
+                        isError: true
                     });
                     return;
                 }
                 if (!usuarioFound.activado) {
                     reject({
-                        status: 409,
-                        msg: 'El usuario no se encuentra activado',
-                        error: true
+                        status: 401,
+                        msg: 'Usuario no activado',
+                        isError: true
                     });
                     return;
                 }
                 resolve({
                     status: 200,
                     msg: 'Inicio de Sesión correcto',
-                    jwt: Auth_class_1.default.genJWT({ id: usuarioFound._id })
+                    data: {
+                        usuarioFound
+                    }
                 });
             }
             catch (error) {
                 reject({
                     status: 500,
-                    msg: 'Hubo un error al iniciar sesión',
-                    error: true,
-                    details: error
+                    msg: 'Hubo un error al Iniciar Sesión',
+                    isError: true,
+                    errorDetails: error
                 });
             }
         }));

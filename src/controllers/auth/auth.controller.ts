@@ -1,39 +1,41 @@
 import Auth from '../../auth/Auth.class';
+import { PromiseResponse, ResponseError } from '../../interfaces/promise_response.interface';
 import { UsuarioLogin, UsuarioSignUp } from '../../interfaces/usuario.interface';
 import UsuarioModel from '../../models/usuario.model';
 
 export default class AuthController {
     constructor() {}
 
-    public SignUp(usuario: UsuarioSignUp): Promise<any> {
-        return new Promise(async (resolve, reject): Promise<any> => {
+    public SignUp(usuario: UsuarioSignUp): Promise<PromiseResponse> {
+        return new Promise(async (resolve: (info: PromiseResponse) => void, reject: (reason: ResponseError) => void) => {
             try {
                 const usuarioFound = await UsuarioModel.findOne({email: usuario.email});
 
                 if (usuarioFound && usuarioFound.activado) {
                     reject({
-                        status: 409,
-                        error: true,
-                        msg: 'El email está siendo utilizado por otro usuario',
+                        status: 403,
+                        msg: 'El email ya se encuentra usado por otro usuario',
+                        isError: true,
+                        data: {
+                            email: usuario.email
+                        }
                     });
                     return;
                 }
 
-                if (usuarioFound && usuarioFound.tokenActivacion && !usuarioFound.activado) {
-                    const tokenEncontrado = 'Se ha encontrado un token de activación previo, se procedió a reemplazarlo';
+                if (usuarioFound && !usuarioFound.activado && usuarioFound.tokenActivacion) {
+                    const alertaToken:string = 'Se ha encontrado un token antiguo, se procedió a generar uno nuevo';
 
                     Object.assign(usuarioFound, usuario);
-
-                    await usuarioFound.save();
- 
+                    
                     resolve({
                         status: 201,
-                        msg: `Token de activación generado y enviado a ${usuarioFound.email}`,
-                        tokenEncontrado,
-                        tokenActivacion: usuarioFound.tokenActivacion,
-                        email: usuarioFound.email
-                    });
-
+                        msg: `Se ha enviado un token de activación a ${usuario.email}`,
+                        data: {
+                            alertaToken,
+                            token:usuarioFound.tokenActivacion
+                        }
+                    })
                     return;
                 }
 
@@ -41,37 +43,61 @@ export default class AuthController {
 
                 resolve({
                     status: 201,
-                    msg: `Usuario creado correctamente, token de activación generado y enviado a ${usuarioCreado.email}`,
-                    usuarioCreado
+                    msg: `Se ha enviado un token de activación a ${usuario.email}`,
+                    data: {
+                        usuarioCreado
+                    }
                 });
             } catch (error) {
                 reject({
                     status: 500,
-                    msg: 'Hubo un error al registrar al usuario',
-                    error: true,
-                    details: error
+                    msg: 'Hubo un error al Registrar la Cuenta',
+                    isError: true,
+                    errorDetails: error
                 });
             }
         });
     }
 
-    public Confirm(token: string): Promise<any> {
-        return new Promise(async (resolve, reject): Promise<any> => {
+    public ActivarCuenta(token: string): Promise<PromiseResponse> {
+        return new Promise(async (resolve: (info: PromiseResponse) => void, reject: (reason: ResponseError) => void) => {
             try {
+                const usuarioFound = await UsuarioModel.findOne({tokenActivacion: token});
 
+                if (!usuarioFound) {
+                    reject({
+                        status: 404,
+                        msg: 'Usuario no encontrado',
+                        isError: true
+                    });
+                    return;
+                }
+
+                usuarioFound.tokenActivacion = null;
+                usuarioFound.activado = true;
+
+                await usuarioFound.save();
+
+                resolve({
+                    status: 200,
+                    msg: 'Usuario registrado correctamente',
+                    data: {
+                        usuarioRegistrado: usuarioFound
+                    }
+                })
             } catch (error) {
                 reject({
-                    status: 404,
-                    msg: 'Hubo un error al confirmar la cuenta',
-                    error: true,
-                    details: error
+                    status: 500,
+                    msg: 'Hubo un error al activar la cuenta',
+                    isError: true,
+                    errorDetails: error
                 });
             }
         });
     }
 
-    public Login(usuario: UsuarioLogin): Promise<any> {
-        return new Promise(async (resolve, reject): Promise<any> => {
+    public Login(usuario: UsuarioLogin): Promise<PromiseResponse> {
+        return new Promise(async (resolve: (info: PromiseResponse) => void, reject: (reason: ResponseError) => void) => {
             try {
                 const usuarioFound = await UsuarioModel.findOne({email: usuario.email});
 
@@ -79,27 +105,27 @@ export default class AuthController {
                     reject({
                         status: 404,
                         msg: 'Usuario no encontrado',
-                        error: true
-                    });
+                        isError: true
+                    })
                     return;
                 }
 
-                const passwordCorrecto = await Auth.validateHashBcrypt(usuario.password, usuarioFound.password);
+                const correctPassword = await Auth.validateHashBcrypt(usuario.password, usuarioFound.password);
 
-                if (!passwordCorrecto) {
+                if (!correctPassword) {
                     reject({
                         status: 401,
                         msg: 'Password incorrecto',
-                        error: true
-                    });
+                        isError: true
+                    })
                     return;
                 }
 
                 if (!usuarioFound.activado) {
                     reject({
-                        status: 409,
-                        msg: 'El usuario no se encuentra activado',
-                        error: true
+                        status: 401,
+                        msg: 'Usuario no activado',
+                        isError: true
                     });
                     return;
                 }
@@ -107,16 +133,18 @@ export default class AuthController {
                 resolve({
                     status: 200,
                     msg: 'Inicio de Sesión correcto',
-                    jwt: Auth.genJWT({id: usuarioFound._id})
+                    data: {
+                        usuarioFound
+                    }
                 });
-            } catch (error) {
+            } catch (error: any) {
                 reject({
                     status: 500,
-                    msg: 'Hubo un error al iniciar sesión',
-                    error: true,
-                    details: error
-                })
+                    msg: 'Hubo un error al Iniciar Sesión',
+                    isError: true,
+                    errorDetails: error
+                });
             }
-        });
+        })
     }
 }
