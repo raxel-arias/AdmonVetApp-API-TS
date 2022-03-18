@@ -1,5 +1,4 @@
-import {NextFunction, Request, Response} from 'express';
-
+import {Request, Response, NextFunction} from 'express';
 import bcrypt from 'bcrypt';
 import crypto from 'crypto';
 import jwt from 'jsonwebtoken';
@@ -7,17 +6,10 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-declare global {
-    namespace Express {
-        interface Request {
-            user?: any
-        }
-    }
-}
 export default class Auth {
     private static _JWT_SECRET: any = process.env.JWT_SECRET;
 
-    public static genHash(password: string):Promise<string> {
+    public static genHash(password: string): Promise<string> {
         return new Promise(async (resolve: any, reject: any) => {
             const hashed:string = await bcrypt.hash(password, bcrypt.genSaltSync(5));
 
@@ -29,7 +21,7 @@ export default class Auth {
         return crypto.randomBytes(20).toString('hex');
     }
 
-    public static async validateHashBcrypt(password: string, correctHashedPassword: string) {
+    public static async validateHashBcrypt(password: string, correctHashedPassword: string): Promise<boolean> {
         return new Promise(async (resolve: any, reject: any) => {
             const isValid = await bcrypt.compare(password, correctHashedPassword);
 
@@ -37,7 +29,7 @@ export default class Auth {
         });
     }
 
-    public static async genJWT(data: any) {
+    public static async genJWT(data: any): Promise<string> {
         return jwt.sign(data, this._JWT_SECRET, {
             expiresIn: '30d'
         });
@@ -72,7 +64,7 @@ export default class Auth {
                     error: true
                 });
             } else {
-                req.user = user;
+                req.user.id = user;
                 next();
             }
         });

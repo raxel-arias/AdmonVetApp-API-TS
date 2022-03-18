@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Login = exports.SignUp = void 0;
+exports.ResetearPassword = exports.ValidarTokenRecuperacion = exports.RecuperarCuenta = exports.ActivarCuenta = exports.Login = exports.SignUp = void 0;
 const auth_controller_1 = __importDefault(require("../../controllers/auth/auth.controller"));
 const SignUp = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const usuario = req.body;
@@ -36,3 +36,50 @@ const Login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     }
 });
 exports.Login = Login;
+const ActivarCuenta = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const token = req.params.token;
+    try {
+        const response = yield new auth_controller_1.default().ActivarCuenta(token);
+        res.status(response.status).json(response);
+    }
+    catch (error) {
+        res.status(error.status).json(error);
+    }
+});
+exports.ActivarCuenta = ActivarCuenta;
+const RecuperarCuenta = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { email } = req.body;
+    try {
+        const response = yield new auth_controller_1.default().GenerarTokenRecuperacion(email);
+        res.status(response.status).json(response);
+    }
+    catch (error) {
+        res.status(error.status).json(error);
+    }
+});
+exports.RecuperarCuenta = RecuperarCuenta;
+const ValidarTokenRecuperacion = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const { token } = req.params;
+    try {
+        const response = yield new auth_controller_1.default().ValidarTokenRecuperacion(token);
+        req.user = { id: response.data.usuarioId };
+        next();
+    }
+    catch (error) {
+        console.log(error);
+        res.status(error.status).json(error);
+    }
+});
+exports.ValidarTokenRecuperacion = ValidarTokenRecuperacion;
+const ResetearPassword = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { id } = req.user;
+    const { password } = req.body;
+    try {
+        const response = yield new auth_controller_1.default().ResetearPassword(password, id);
+        res.status(response.status).json(response);
+    }
+    catch (error) {
+        res.status(error.status).json(error);
+    }
+});
+exports.ResetearPassword = ResetearPassword;

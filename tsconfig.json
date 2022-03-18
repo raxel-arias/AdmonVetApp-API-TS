@@ -8,9 +8,13 @@
   ],
   "compilerOptions": {
     "baseUrl": ".",
+    "typeRoots": [
+      "./types"
+    ],
     "paths": {
       "*": [
-        "types/*"
+        "node_modules",
+        "src/types/*"
       ]
     },
     "target": "es6",

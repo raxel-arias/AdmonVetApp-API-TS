@@ -68,7 +68,7 @@ class Auth {
                 });
             }
             else {
-                req.user = user;
+                req.user.id = user;
                 next();
             }
         });

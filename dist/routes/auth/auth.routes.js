@@ -7,3 +7,7 @@ const AuthRouterChilds = (0, express_1.Router)({ mergeParams: true });
 exports.AuthRouter = (0, express_1.Router)();
 exports.AuthRouter.use('/auth', AuthRouterChilds);
 AuthRouterChilds.post('/signup', auth_mw_1.SignUp);
+AuthRouterChilds.post('/login', auth_mw_1.Login);
+AuthRouterChilds.get('/confirm/:token', auth_mw_1.ActivarCuenta);
+AuthRouterChilds.post('/recover-account', auth_mw_1.RecuperarCuenta);
+AuthRouterChilds.post('/reset-password/:token', auth_mw_1.ValidarTokenRecuperacion, auth_mw_1.ResetearPassword);

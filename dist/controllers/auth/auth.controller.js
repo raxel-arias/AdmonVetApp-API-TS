@@ -12,6 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+const moment_1 = __importDefault(require("moment"));
 const Auth_class_1 = __importDefault(require("../../auth/Auth.class"));
 const usuario_model_1 = __importDefault(require("../../models/usuario.model"));
 class AuthController {
@@ -49,7 +50,8 @@ class AuthController {
                     status: 201,
                     msg: `Se ha enviado un token de activación a ${usuario.email}`,
                     data: {
-                        usuarioCreado
+                        tokenActivacion: usuarioCreado.tokenActivacion,
+                        email: usuarioCreado.email
                     }
                 });
             }
@@ -137,6 +139,130 @@ class AuthController {
                 reject({
                     status: 500,
                     msg: 'Hubo un error al Iniciar Sesión',
+                    isError: true,
+                    errorDetails: error
+                });
+            }
+        }));
+    }
+    GenerarTokenRecuperacion(email) {
+        return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
+            try {
+                const usuarioFound = yield usuario_model_1.default.findOne({ email });
+                if (!usuarioFound) {
+                    reject({
+                        status: 404,
+                        msg: 'Usuario no encontrado',
+                        isError: true
+                    });
+                    return;
+                }
+                if (usuarioFound && !usuarioFound.activado) {
+                    reject({
+                        status: 403,
+                        msg: 'El usuario no está activado',
+                        isError: true
+                    });
+                    return;
+                }
+                const IN_ONE_HOUR = 3600000;
+                usuarioFound.tokenReseteo = Auth_class_1.default.genToken();
+                usuarioFound.tokenReseteoExp = new Date((Date.now() + IN_ONE_HOUR));
+                yield usuarioFound.save();
+                resolve({
+                    status: 200,
+                    msg: `Token de recuperación generado y enviado a ${usuarioFound.email}`,
+                    data: {
+                        tokenRecuperacion: usuarioFound.tokenReseteo,
+                        expiracion: usuarioFound.tokenReseteoExp
+                    }
+                });
+            }
+            catch (error) {
+                reject({
+                    status: 500,
+                    msg: 'Hubo un error al enviar el email',
+                    isError: true,
+                    errorDetails: error
+                });
+            }
+        }));
+    }
+    ValidarTokenRecuperacion(token) {
+        const FORMATO_FECHA_HORA = 'YYYY-MM-DD HH:mm:ss';
+        return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
+            try {
+                const usuarioFound = yield usuario_model_1.default.findOne({ tokenReseteo: token });
+                if (!usuarioFound) {
+                    reject({
+                        status: 404,
+                        msg: 'Usuario no encontrado',
+                        isError: true
+                    });
+                    return;
+                }
+                const fechaHoraActual = (0, moment_1.default)(Date.now()).format(FORMATO_FECHA_HORA);
+                const fechaHoraExpiracion = (0, moment_1.default)(usuarioFound.tokenReseteoExp).format(FORMATO_FECHA_HORA);
+                // console.log(fechaHoraActual);
+                // console.log(fechaHoraExpiracion);
+                // console.log(fechaHoraActual > fechaHoraExpiracion);
+                const fechaHoraExpirado = JSON.parse(JSON.stringify(fechaHoraExpiracion));
+                if (fechaHoraActual > fechaHoraExpiracion) {
+                    yield usuarioFound.save();
+                    reject({
+                        status: 403,
+                        msg: `Token de recuperación caducado el ${fechaHoraExpirado}`,
+                        isError: true
+                    });
+                    return;
+                }
+                usuarioFound.tokenReseteo = null;
+                usuarioFound.tokenReseteoExp = null;
+                yield usuarioFound.save();
+                resolve({
+                    status: 200,
+                    msg: `Token de recuperación validado, proceder a actualizar la contraseña`,
+                    data: {
+                        usuarioId: usuarioFound._id.toString()
+                    }
+                });
+            }
+            catch (error) {
+                reject({
+                    status: 500,
+                    msg: 'Hubo un error al validar el token de recuperación',
+                    isError: true,
+                    errorDetails: error
+                });
+            }
+        }));
+    }
+    ResetearPassword(password, usuarioId) {
+        return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
+            try {
+                const usuarioFound = yield usuario_model_1.default.findById(usuarioId);
+                if (!usuarioFound) {
+                    reject({
+                        status: 404,
+                        msg: 'Usuario no encontrado',
+                        isError: true
+                    });
+                    return;
+                }
+                usuarioFound.password = password;
+                yield usuarioFound.save();
+                resolve({
+                    status: 201,
+                    msg: 'Password actualizado',
+                    data: {
+                        email: usuarioFound.email
+                    }
+                });
+            }
+            catch (error) {
+                reject({
+                    status: 500,
+                    msg: 'Hubo un error al resetear el password',
                     isError: true,
                     errorDetails: error
                 });

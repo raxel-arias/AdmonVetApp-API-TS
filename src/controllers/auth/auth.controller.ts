@@ -8,7 +8,7 @@ import UsuarioModel from '../../models/usuario.model';
 export default class AuthController {
     constructor() {}
 
-    public SignUp(usuario: UsuarioSignUp): Promise<PromiseResponse> {
+    public SignUp(usuario: UsuarioSignUp): Promise<PromiseResponse | ResponseError> {
         return new Promise(async (resolve: (info: PromiseResponse) => void, reject: (reason: ResponseError) => void) => {
             try {
                 const usuarioFound = await UsuarioModel.findOne({email: usuario.email});
@@ -47,7 +47,8 @@ export default class AuthController {
                     status: 201,
                     msg: `Se ha enviado un token de activación a ${usuario.email}`,
                     data: {
-                        usuarioCreado
+                        tokenActivacion: usuarioCreado.tokenActivacion,
+                        email: usuarioCreado.email
                     }
                 });
             } catch (error) {
@@ -61,7 +62,7 @@ export default class AuthController {
         });
     }
 
-    public ActivarCuenta(token: string): Promise<PromiseResponse> {
+    public ActivarCuenta(token: string): Promise<PromiseResponse | ResponseError> {
         return new Promise(async (resolve: (info: PromiseResponse) => void, reject: (reason: ResponseError) => void) => {
             try {
                 const usuarioFound = await UsuarioModel.findOne({tokenActivacion: token});
@@ -98,7 +99,7 @@ export default class AuthController {
         });
     } 
 
-    public Login(usuario: UsuarioLogin): Promise<PromiseResponse> {
+    public Login(usuario: UsuarioLogin): Promise<PromiseResponse | ResponseError> {
         return new Promise(async (resolve: (info: PromiseResponse) => void, reject: (reason: ResponseError) => void) => {
             try {
                 const usuarioFound = await UsuarioModel.findOne({email: usuario.email});
@@ -150,7 +151,7 @@ export default class AuthController {
         })
     }
 
-    public GenerarTokenRecuperacion(email: string): Promise<PromiseResponse> {
+    public GenerarTokenRecuperacion(email: string): Promise<PromiseResponse | ResponseError> {
         return new Promise(async (resolve: (info: PromiseResponse) => void, reject: (reason: ResponseError) => void) => {
             try {
                 const usuarioFound = await UsuarioModel.findOne({email});
@@ -173,10 +174,10 @@ export default class AuthController {
                     return;
                 }
 
-                const IN_ONE_HOUR = 3600000;
+                const IN_ONE_HOUR: number = 3600000;
 
-                usuarioFound.tokenActivacion = Auth.genToken();
-                usuarioFound.tokenReseteoExp = new Date(Date.now() + IN_ONE_HOUR);
+                usuarioFound.tokenReseteo = Auth.genToken();
+                usuarioFound.tokenReseteoExp = new Date((Date.now() + IN_ONE_HOUR));
 
                 await usuarioFound.save();
 
@@ -184,10 +185,11 @@ export default class AuthController {
                     status: 200,
                     msg: `Token de recuperación generado y enviado a ${usuarioFound.email}`,
                     data: {
-                        tokenRecuperacion: usuarioFound.tokenReseteo
+                        tokenRecuperacion: usuarioFound.tokenReseteo,
+                        expiracion: usuarioFound.tokenReseteoExp
                     }
                 });
-            } catch (error) {
+            } catch (error: any) {
                 reject({
                     status: 500,
                     msg: 'Hubo un error al enviar el email',
@@ -198,11 +200,97 @@ export default class AuthController {
         });
     }
 
-    public ValidarTokenRecuperacion() {
+    public ValidarTokenRecuperacion(token: string): Promise<PromiseResponse | ResponseError> {
+        const FORMATO_FECHA_HORA: string = 'YYYY-MM-DD HH:mm:ss';
 
+        return new Promise(async (resolve: (info: PromiseResponse) => void, reject: (reason: ResponseError) => void) => {
+            try {
+                const usuarioFound = await UsuarioModel.findOne({tokenReseteo: token});
+
+                if (!usuarioFound) {
+                    reject({
+                        status: 404,
+                        msg: 'Usuario no encontrado',
+                        isError: true
+                    });
+                    return;
+                }
+                const fechaHoraActual = moment(Date.now()).format(FORMATO_FECHA_HORA);
+                const fechaHoraExpiracion = moment(usuarioFound.tokenReseteoExp).format(FORMATO_FECHA_HORA);
+
+                // console.log(fechaHoraActual);
+                // console.log(fechaHoraExpiracion);
+                // console.log(fechaHoraActual > fechaHoraExpiracion);
+
+                const fechaHoraExpirado = JSON.parse(JSON.stringify(fechaHoraExpiracion));
+
+                if (fechaHoraActual > fechaHoraExpiracion) {
+                    await usuarioFound.save()
+                    
+                    reject({
+                        status: 403,
+                        msg: `Token de recuperación caducado el ${fechaHoraExpirado}`,
+                        isError: true
+                    });
+                    return;
+                }
+
+                usuarioFound.tokenReseteo = null;
+                usuarioFound.tokenReseteoExp = null;
+
+                await usuarioFound.save();
+                
+                resolve({
+                    status: 200,
+                    msg: `Token de recuperación validado, proceder a actualizar la contraseña`,
+                    data: {
+                        usuarioId: usuarioFound._id.toString()
+                    }
+                });
+            } catch (error: any) {
+                reject({
+                    status: 500,
+                    msg: 'Hubo un error al validar el token de recuperación',
+                    isError: true,
+                    errorDetails: error
+                });
+            }
+        });
     }
 
-    public ResetearPassword() {
+    public ResetearPassword(password: string, usuarioId: string): Promise<PromiseResponse | ResponseError> {
+        return new Promise(async (resolve: (info: PromiseResponse) => void, reject: (reason: ResponseError) => void) => {
+            try {
+                const usuarioFound = await UsuarioModel.findById(usuarioId);
 
+                if (!usuarioFound) {
+                    reject({
+                        status: 404,
+                        msg: 'Usuario no encontrado',
+                        isError: true
+                    });
+                    return;
+                }
+
+                usuarioFound.password = password;
+
+                await usuarioFound.save();
+
+                resolve({
+                    status: 201,
+                    msg: 'Password actualizado',
+                    data: {
+                        email: usuarioFound.email
+                    }
+                });
+            } catch (error: any) {
+                reject({
+                    status: 500,
+                    msg: 'Hubo un error al resetear el password',
+                    isError: true,
+                    errorDetails: error
+                });
+            }
+        });
     }
 }
