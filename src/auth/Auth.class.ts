@@ -1,7 +1,7 @@
 import {Request, Response, NextFunction} from 'express';
 import bcrypt from 'bcrypt';
 import crypto from 'crypto';
-import jwt from 'jsonwebtoken';
+import jwt, { Secret } from 'jsonwebtoken';
 import dotenv from 'dotenv';
 
 import {IJWTUser} from '../interfaces/jwt/jwt.interface';
@@ -9,7 +9,6 @@ import {IJWTUser} from '../interfaces/jwt/jwt.interface';
 dotenv.config();
 
 export default class Auth {
-    private static _JWT_SECRET: any = process.env.JWT_SECRET;
 
     public static genHash(password: string): Promise<string> {
         return new Promise(async (resolve: any, reject: any) => {
@@ -32,14 +31,14 @@ export default class Auth {
     }
 
     public static async genJWT(data: IJWTUser): Promise<string> {
-        return jwt.sign(data, this._JWT_SECRET, {
+        return jwt.sign(data, process.env.JWT_SECRET??'', {
             expiresIn: '30d'
         });
     }
 
-    public static validateJWT(req: Request, res: Response, next: NextFunction) {
+    public static ValidateJWT(req: Request, res: Response, next: NextFunction) {
         const authHeaders:string | undefined = req.headers.authorization;
-
+        
         if (!authHeaders || !authHeaders.startsWith('Bearer')) {
             res.status(403).json({
                 msg: 'Token Inválido o no encontrado',
@@ -58,7 +57,8 @@ export default class Auth {
             return;
         }
 
-        const decodedData = jwt.verify(token, this._JWT_SECRET, (err: any, user: any) => {
+        const decodedData = jwt.verify(token, process.env.JWT_SECRET??'', (err: any, user: any) => {
+            
             if (err) {
                 res.status(403).json({
                     msg: 'Token JWT Inválido',
@@ -66,7 +66,7 @@ export default class Auth {
                     error: true
                 });
             } else {
-                req.user.id = user;
+                req.user = user;
                 next();
             }
         });

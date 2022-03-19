@@ -7,5 +7,5 @@ declare module 'express-serve-static-core' {
 }
 
 interface IUserRequest {
-    id: string
+    userId: string
 }

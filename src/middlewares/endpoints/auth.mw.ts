@@ -56,7 +56,9 @@ export const ValidarTokenRecuperacion = async (req: Request, res: Response, next
     try {
         const response: PromiseResponse = await new AuthController().ValidarTokenRecuperacion(token);
           
-        req.user = {id: response.data.usuarioId};
+        req.user = {
+            userId: response.data.usuarioId
+        }
 
         next();
     } catch (error: any) {
@@ -66,11 +68,11 @@ export const ValidarTokenRecuperacion = async (req: Request, res: Response, next
 }
 
 export const ResetearPassword = async (req: Request, res: Response): Promise<any> => {
-    const {id}: Request['user'] = req.user;
+    const {userId}: Request['user'] = req.user;
     const {password}: Request["body"] = req.body;
 
     try {
-        const response: PromiseResponse = await new AuthController().ResetearPassword(password, id);
+        const response: PromiseResponse = await new AuthController().ResetearPassword(password, userId);
 
         res.status(response.status).json(response);
     } catch (error: any) {

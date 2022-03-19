@@ -128,7 +128,7 @@ class AuthController {
                     return;
                 }
                 const jwtToken = yield Auth_class_1.default.genJWT({
-                    id: usuarioFound._id.toString()
+                    userId: usuarioFound._id.toString()
                 });
                 resolve({
                     status: 200,
@@ -212,7 +212,6 @@ class AuthController {
                 // console.log(fechaHoraActual > fechaHoraExpiracion);
                 const fechaHoraExpirado = JSON.parse(JSON.stringify(fechaHoraExpiracion));
                 if (fechaHoraActual > fechaHoraExpiracion) {
-                    yield usuarioFound.save();
                     reject({
                         status: 403,
                         msg: `Token de recuperación caducado el ${fechaHoraExpirado}`,

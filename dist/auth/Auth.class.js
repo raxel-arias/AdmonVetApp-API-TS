@@ -36,13 +36,15 @@ class Auth {
         });
     }
     static genJWT(data) {
+        var _a;
         return __awaiter(this, void 0, void 0, function* () {
-            return jsonwebtoken_1.default.sign(data, this._JWT_SECRET, {
+            return jsonwebtoken_1.default.sign(data, (_a = process.env.JWT_SECRET) !== null && _a !== void 0 ? _a : '', {
                 expiresIn: '30d'
             });
         });
     }
-    static validateJWT(req, res, next) {
+    static ValidateJWT(req, res, next) {
+        var _a;
         const authHeaders = req.headers.authorization;
         if (!authHeaders || !authHeaders.startsWith('Bearer')) {
             res.status(403).json({
@@ -59,7 +61,7 @@ class Auth {
             });
             return;
         }
-        const decodedData = jsonwebtoken_1.default.verify(token, this._JWT_SECRET, (err, user) => {
+        const decodedData = jsonwebtoken_1.default.verify(token, (_a = process.env.JWT_SECRET) !== null && _a !== void 0 ? _a : '', (err, user) => {
             if (err) {
                 res.status(403).json({
                     msg: 'Token JWT Inválido',
@@ -68,11 +70,10 @@ class Auth {
                 });
             }
             else {
-                req.user.id = user;
+                req.user = user;
                 next();
             }
         });
     }
 }
 exports.default = Auth;
-Auth._JWT_SECRET = process.env.JWT_SECRET;
