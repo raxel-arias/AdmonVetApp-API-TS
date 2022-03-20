@@ -62,7 +62,6 @@ export const ValidarTokenRecuperacion = async (req: Request, res: Response, next
 
         next();
     } catch (error: any) {
-        console.log(error);
         res.status(error.status).json(error);
     }
 }

@@ -68,7 +68,6 @@ const ValidarTokenRecuperacion = (req, res, next) => __awaiter(void 0, void 0, v
         next();
     }
     catch (error) {
-        console.log(error);
         res.status(error.status).json(error);
     }
 });
