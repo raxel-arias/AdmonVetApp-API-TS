@@ -156,7 +156,58 @@ export default class PacienteController {
 
     public EliminarPaciente(paciente: PacienteEliminar): Promise<PromiseResponse | ResponseError> {
         return new Promise (async (resolve: (info: PromiseResponse) => void, reject: (reason: ResponseError) => void) => {
-            
+            try {
+                const [usuarioFound, pacienteFound] = await Promise.all([
+                    UsuarioModel.findById(paciente.veterinario_id),
+                    PacienteModel.findById(paciente._id)
+                ]);
+
+                if (!usuarioFound) {
+                    reject({
+                        status: 404,
+                        msg: 'Usuario no encontrado',
+                        isError: true
+                    });
+                    return;
+                }
+                
+                if (!pacienteFound) {
+                    reject({
+                        status: 404,
+                        msg: 'Paciente no encontrado',
+                        isError: true
+                    });
+                    return;
+                }
+
+                if (pacienteFound.veterinario_id.toString() !== usuarioFound._id.toString()) {
+                    reject({
+                        status: 403,
+                        msg: 'No se puede eliminar el paciente',
+                        isError: true
+                    });
+                    return;
+                }
+                
+                const pacienteEliminado = ClonarObjeto(pacienteFound);
+
+                await pacienteFound.delete();
+
+                resolve({
+                    status: 200,
+                    msg: 'Paciente eliminado correctamente',
+                    data: {
+                        pacienteEliminado
+                    }
+                });
+            } catch (error: any) {
+                reject({
+                    status: 500,
+                    msg: 'Ocurrió un error al eliminar el paciente',
+                    isError: true,
+                    errorDetails: error
+                });
+            }
         });
     }
 }

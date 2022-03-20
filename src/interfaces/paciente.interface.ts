@@ -1,7 +1,7 @@
 import {IPropietario} from './models/paciente_model.interface';
 
 export interface FiltrosPacienteBusqueda {
-    veterinario_id: string
+    readonly veterinario_id: string
 }
 
 export interface PacienteNuevo {
@@ -22,5 +22,6 @@ export interface PacienteEditar {
 }
 
 export interface PacienteEliminar {
-
+    readonly _id: string,
+    readonly veterinario_id: string
 }

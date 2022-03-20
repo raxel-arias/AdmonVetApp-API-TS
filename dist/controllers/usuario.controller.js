@@ -14,6 +14,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const Auth_class_1 = __importDefault(require("../auth/Auth.class"));
 const usuario_model_1 = __importDefault(require("../models/usuario.model"));
+const objects_utils_1 = require("../utils/objects.utils");
 class UsuarioController {
     constructor() { }
     ActualizarInfo(usuario) {
@@ -44,7 +45,7 @@ class UsuarioController {
                         isError: true
                     });
                 }
-                const usuarioOutdated = JSON.parse(JSON.stringify(usuarioFound));
+                const usuarioOutdated = (0, objects_utils_1.ClonarObjeto)(usuarioFound);
                 Object.assign(usuarioFound, usuario);
                 yield usuarioFound.save();
                 resolve({

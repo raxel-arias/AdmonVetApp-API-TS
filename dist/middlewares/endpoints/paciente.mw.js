@@ -66,5 +66,16 @@ const ActualizarInfoPaciente = (req, res) => __awaiter(void 0, void 0, void 0, f
 });
 exports.ActualizarInfoPaciente = ActualizarInfoPaciente;
 const EliminarPaciente = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const paciente = req.body;
+    const { userId } = req.user;
+    paciente._id = req.params.id;
+    paciente.veterinario_id = userId;
+    try {
+        const response = yield new paciente_controller_1.default().EliminarPaciente(paciente);
+        res.status(response.status).json(response);
+    }
+    catch (error) {
+        res.status(error.status).json(error);
+    }
 });
 exports.EliminarPaciente = EliminarPaciente;

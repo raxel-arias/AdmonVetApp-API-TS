@@ -54,5 +54,17 @@ export const ActualizarInfoPaciente = async (req: Request, res: Response): Promi
 }
 
 export const EliminarPaciente = async (req: Request, res: Response): Promise<any> => {
+    const paciente = req.body;
+    const {userId}: Request['user'] = req.user;
+
+    paciente._id = req.params.id;
+    paciente.veterinario_id = userId;
     
+    try {
+        const response: PromiseResponse = await new PacienteController().EliminarPaciente(paciente);
+
+        res.status(response.status).json(response);
+    } catch (error: any) {
+        res.status(error.status).json(error);
+    }
 }

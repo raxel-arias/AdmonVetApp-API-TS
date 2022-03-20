@@ -160,6 +160,53 @@ class PacienteController {
     }
     EliminarPaciente(paciente) {
         return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
+            try {
+                const [usuarioFound, pacienteFound] = yield Promise.all([
+                    usuario_model_1.default.findById(paciente.veterinario_id),
+                    paciente_model_1.default.findById(paciente._id)
+                ]);
+                if (!usuarioFound) {
+                    reject({
+                        status: 404,
+                        msg: 'Usuario no encontrado',
+                        isError: true
+                    });
+                    return;
+                }
+                if (!pacienteFound) {
+                    reject({
+                        status: 404,
+                        msg: 'Paciente no encontrado',
+                        isError: true
+                    });
+                    return;
+                }
+                if (pacienteFound.veterinario_id.toString() !== usuarioFound._id.toString()) {
+                    reject({
+                        status: 403,
+                        msg: 'No se puede eliminar el paciente',
+                        isError: true
+                    });
+                    return;
+                }
+                const pacienteEliminado = (0, objects_utils_1.ClonarObjeto)(pacienteFound);
+                yield pacienteFound.delete();
+                resolve({
+                    status: 200,
+                    msg: 'Paciente eliminado correctamente',
+                    data: {
+                        pacienteEliminado
+                    }
+                });
+            }
+            catch (error) {
+                reject({
+                    status: 500,
+                    msg: 'Ocurrió un error al eliminar el paciente',
+                    isError: true,
+                    errorDetails: error
+                });
+            }
         }));
     }
 }

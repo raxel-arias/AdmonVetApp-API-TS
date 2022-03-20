@@ -2,6 +2,7 @@ import Auth from "../auth/Auth.class";
 import { UsuarioUpdate } from "../interfaces/usuario.interface";
 import {PromiseResponse, ResponseError} from "../interfaces/promise_response.interface";
 import UsuarioModel from "../models/usuario.model";
+import { ClonarObjeto } from "../utils/objects.utils";
 
 export default class UsuarioController {
     constructor() {}
@@ -39,7 +40,7 @@ export default class UsuarioController {
                     });
                 }
 
-                const usuarioOutdated = JSON.parse(JSON.stringify(usuarioFound));
+                const usuarioOutdated = ClonarObjeto(usuarioFound);
 
                 Object.assign(usuarioFound, usuario);
 
