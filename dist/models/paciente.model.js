@@ -9,16 +9,13 @@ exports.PacienteSchema = new mongoose_1.Schema({
     },
     propietario: {
         nombre: {
-            type: String,
-            required: true
+            type: String
         },
         apellido: {
-            type: String,
-            required: true
+            type: String
         },
         email: {
-            type: String,
-            required: true
+            type: String
         }
     },
     fechaAlta: {
@@ -27,7 +24,8 @@ exports.PacienteSchema = new mongoose_1.Schema({
     },
     veterinario_id: {
         type: mongoose_1.Schema.Types.ObjectId,
-        ref: 'veterinarios'
+        ref: 'veterinarios',
+        required: true
     },
     pendiente: {
         type: Boolean,

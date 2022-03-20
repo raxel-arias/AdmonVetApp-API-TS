@@ -13,8 +13,14 @@ export interface PacienteNuevo {
 }
 
 export interface PacienteEditar {
+    readonly _id: string,
+    readonly veterinario_id: string,
     nombre?: string,
     propietario?: IPropietario,
     sintomas?: string,
     fechaAlta?: Date,
+}
+
+export interface PacienteEliminar {
+
 }

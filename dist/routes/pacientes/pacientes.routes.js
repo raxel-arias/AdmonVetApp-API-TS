@@ -12,5 +12,5 @@ exports.PacienteRouter = (0, express_1.Router)();
 exports.PacienteRouter.use('/pacientes', PacienteRouterChilds);
 exports.PacienteRouter.get('/pacientes', Auth_class_1.default.ValidateJWT, paciente_mw_1.ListadoPacientes);
 PacienteRouterChilds.post('/nuevo', Auth_class_1.default.ValidateJWT, paciente_mw_1.NuevoPaciente);
-PacienteRouterChilds.put('/editar/:id', Auth_class_1.default.ValidateJWT);
-PacienteRouterChilds.delete('/eliminar/:id', Auth_class_1.default.ValidateJWT);
+PacienteRouterChilds.put('/editar/:id', Auth_class_1.default.ValidateJWT, paciente_mw_1.ActualizarInfoPaciente);
+PacienteRouterChilds.delete('/eliminar/:id', Auth_class_1.default.ValidateJWT, paciente_mw_1.EliminarPaciente);

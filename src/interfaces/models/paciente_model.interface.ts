@@ -8,7 +8,7 @@ export default interface IPacienteModel {
 }
 
 export interface IPropietario {
-    nombre: string,
-    apellido: string,
-    email: string
+    nombre?: string,
+    apellido?: string,
+    email?: string
 }

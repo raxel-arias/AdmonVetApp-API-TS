@@ -8,16 +8,13 @@ export const PacienteSchema = new Schema<IPacienteModel>({
     },
     propietario: {
         nombre: {
-            type: String,
-            required: true
+            type: String
         },
         apellido: {
-            type: String,
-            required: true
+            type: String
         },
         email: {
-            type: String,
-            required: true
+            type: String
         }
     },
     fechaAlta: {
@@ -26,7 +23,8 @@ export const PacienteSchema = new Schema<IPacienteModel>({
     },
     veterinario_id: {
         type: Schema.Types.ObjectId,
-        ref: 'veterinarios'
+        ref: 'veterinarios',
+        required: true
     },
     pendiente: {
         type: Boolean,

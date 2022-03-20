@@ -7,9 +7,10 @@ import { PromiseResponse } from '../../interfaces/promise_response.interface';
 export const NuevoPaciente = async (req: Request, res: Response): Promise<any> => {
     const paciente = req.body;
     const {userId}: Request['user'] = req.user;
+    paciente.veterinario_id = userId;
 
     try {
-        const response: PromiseResponse = await new PacienteController().CrearPaciente(paciente, userId);
+        const response: PromiseResponse = await new PacienteController().CrearPaciente(paciente);
 
         res.status(response.status).json(response);
     } catch (error: any) {
@@ -34,4 +35,24 @@ export const ListadoPacientes = async (req: Request, res: Response): Promise<any
     } catch (error: any) {
         res.status(error.status).json(error);
     }
+}
+
+export const ActualizarInfoPaciente = async (req: Request, res: Response): Promise<any> => {
+    const paciente = req.body;
+    const {userId}: Request["user"] = req.user;
+
+    paciente._id = req.params.id;
+    paciente.veterinario_id = userId;
+
+    try {
+        const response: PromiseResponse = await new PacienteController().ActualizarPaciente(paciente);
+    
+        res.status(response.status).json(response);
+    } catch (error: any) {
+        res.status(error.status).json(error);
+    }
+}
+
+export const EliminarPaciente = async (req: Request, res: Response): Promise<any> => {
+    
 }

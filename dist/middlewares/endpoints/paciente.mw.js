@@ -23,13 +23,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.ListadoPacientes = exports.NuevoPaciente = void 0;
+exports.EliminarPaciente = exports.ActualizarInfoPaciente = exports.ListadoPacientes = exports.NuevoPaciente = void 0;
 const paciente_controller_1 = __importDefault(require("../../controllers/paciente.controller"));
 const NuevoPaciente = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const paciente = req.body;
     const { userId } = req.user;
+    paciente.veterinario_id = userId;
     try {
-        const response = yield new paciente_controller_1.default().CrearPaciente(paciente, userId);
+        const response = yield new paciente_controller_1.default().CrearPaciente(paciente);
         res.status(response.status).json(response);
     }
     catch (error) {
@@ -50,3 +51,20 @@ const ListadoPacientes = (req, res) => __awaiter(void 0, void 0, void 0, functio
     }
 });
 exports.ListadoPacientes = ListadoPacientes;
+const ActualizarInfoPaciente = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const paciente = req.body;
+    const { userId } = req.user;
+    paciente._id = req.params.id;
+    paciente.veterinario_id = userId;
+    try {
+        const response = yield new paciente_controller_1.default().ActualizarPaciente(paciente);
+        res.status(response.status).json(response);
+    }
+    catch (error) {
+        res.status(error.status).json(error);
+    }
+});
+exports.ActualizarInfoPaciente = ActualizarInfoPaciente;
+const EliminarPaciente = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+});
+exports.EliminarPaciente = EliminarPaciente;
