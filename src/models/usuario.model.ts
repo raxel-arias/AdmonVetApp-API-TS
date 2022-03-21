@@ -13,7 +13,6 @@ export const UsuarioSchema = new Schema<IUsuarioModel>({
     },
     telefono: {
         type: String,
-        required: true
     },
     email: {
         type: String,

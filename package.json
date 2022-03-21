@@ -12,7 +12,6 @@
   "author": "Raxel Arias",
   "license": "MIT",
   "dependencies": {
-    "@types/express-jwt": "^6.0.4",
     "bcrypt": "^5.0.1",
     "cors": "^2.8.5",
     "crypto": "^1.0.1",

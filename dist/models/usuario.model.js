@@ -26,7 +26,6 @@ exports.UsuarioSchema = new mongoose_1.Schema({
     },
     telefono: {
         type: String,
-        required: true
     },
     email: {
         type: String,
