@@ -50,28 +50,24 @@ export const RecuperarCuenta = async (req: Request, res: Response): Promise<any>
     }
 }
 
-export const ValidarTokenRecuperacion = async (req: Request, res: Response, next: NextFunction): Promise<any> => {
+export const ValidarTokenRecuperacion = async (req: Request, res: Response): Promise<any> => {
     const {token}: Request['params'] = req.params;
     
     try {
         const response: PromiseResponse = await new AuthController().ValidarTokenRecuperacion(token);
-          
-        req.user = {
-            userId: response.data.usuarioId
-        }
-
-        next();
+    
+        res.status(response.status).json(response);
     } catch (error: any) {
         res.status(error.status).json(error);
     }
 }
 
 export const ResetearPassword = async (req: Request, res: Response): Promise<any> => {
-    const {userId}: Request['user'] = req.user;
+    const {token}: Request['query'] = req.query;
     const {password}: Request["body"] = req.body;
 
     try {
-        const response: PromiseResponse = await new AuthController().ResetearPassword(password, userId);
+        const response: PromiseResponse = await new AuthController().ResetearPassword(password, (token as string));
 
         res.status(response.status).json(response);
     } catch (error: any) {

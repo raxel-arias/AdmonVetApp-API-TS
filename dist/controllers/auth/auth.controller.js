@@ -219,14 +219,13 @@ class AuthController {
                     });
                     return;
                 }
-                usuarioFound.tokenReseteo = null;
-                usuarioFound.tokenReseteoExp = null;
-                yield usuarioFound.save();
                 resolve({
                     status: 200,
                     msg: `Token de recuperación validado, proceder a actualizar la contraseña`,
                     data: {
-                        usuarioId: usuarioFound._id.toString()
+                        tokenValidado: true,
+                        usuarioId: usuarioFound._id.toString(),
+                        tokenReseteo: usuarioFound.tokenReseteo
                     }
                 });
             }
@@ -240,10 +239,10 @@ class AuthController {
             }
         }));
     }
-    ResetearPassword(password, usuarioId) {
+    ResetearPassword(password, tokenReseteo) {
         return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
             try {
-                const usuarioFound = yield usuario_model_1.default.findById(usuarioId);
+                const usuarioFound = yield usuario_model_1.default.findOne({ tokenReseteo });
                 if (!usuarioFound) {
                     reject({
                         status: 404,
@@ -253,6 +252,8 @@ class AuthController {
                     return;
                 }
                 usuarioFound.password = password;
+                usuarioFound.tokenReseteo = null;
+                usuarioFound.tokenReseteoExp = null;
                 yield usuarioFound.save();
                 resolve({
                     status: 201,

@@ -237,17 +237,14 @@ export default class AuthController {
                     });
                     return;
                 }
-
-                usuarioFound.tokenReseteo = null;
-                usuarioFound.tokenReseteoExp = null;
-
-                await usuarioFound.save();
                 
                 resolve({
                     status: 200,
                     msg: `Token de recuperación validado, proceder a actualizar la contraseña`,
                     data: {
-                        usuarioId: usuarioFound._id.toString()
+                        tokenValidado: true,
+                        usuarioId: usuarioFound._id.toString(),
+                        tokenReseteo: usuarioFound.tokenReseteo
                     }
                 });
             } catch (error: any) {
@@ -261,10 +258,10 @@ export default class AuthController {
         });
     }
 
-    public ResetearPassword(password: string, usuarioId: string): Promise<PromiseResponse | ResponseError> {
+    public ResetearPassword(password: string, tokenReseteo: string): Promise<PromiseResponse | ResponseError> {
         return new Promise(async (resolve: (info: PromiseResponse) => void, reject: (reason: ResponseError) => void) => {
             try {
-                const usuarioFound = await UsuarioModel.findById(usuarioId);
+                const usuarioFound = await UsuarioModel.findOne({tokenReseteo});
 
                 if (!usuarioFound) {
                     reject({
@@ -276,6 +273,9 @@ export default class AuthController {
                 }
 
                 usuarioFound.password = password;
+
+                usuarioFound.tokenReseteo = null;
+                usuarioFound.tokenReseteoExp = null;
 
                 await usuarioFound.save();
 

@@ -58,14 +58,11 @@ const RecuperarCuenta = (req, res) => __awaiter(void 0, void 0, void 0, function
     }
 });
 exports.RecuperarCuenta = RecuperarCuenta;
-const ValidarTokenRecuperacion = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+const ValidarTokenRecuperacion = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { token } = req.params;
     try {
         const response = yield new auth_controller_1.default().ValidarTokenRecuperacion(token);
-        req.user = {
-            userId: response.data.usuarioId
-        };
-        next();
+        res.status(response.status).json(response);
     }
     catch (error) {
         res.status(error.status).json(error);
@@ -73,10 +70,10 @@ const ValidarTokenRecuperacion = (req, res, next) => __awaiter(void 0, void 0, v
 });
 exports.ValidarTokenRecuperacion = ValidarTokenRecuperacion;
 const ResetearPassword = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { userId } = req.user;
+    const { token } = req.query;
     const { password } = req.body;
     try {
-        const response = yield new auth_controller_1.default().ResetearPassword(password, userId);
+        const response = yield new auth_controller_1.default().ResetearPassword(password, token);
         res.status(response.status).json(response);
     }
     catch (error) {
