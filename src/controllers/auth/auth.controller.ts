@@ -234,7 +234,7 @@ export default class AuthController {
                         <p>Saludos, ${usuarioFound.nombre}</p>
                         <h1>Token de recuperación de cuenta</h1>
 
-                        <a href="${process.env.FRONTEND_URL}/confirm/${usuarioFound.tokenReseteo}">
+                        <a href="${process.env.FRONTEND_URL}/reset-password/${usuarioFound.tokenReseteo}">
                             Ingrese al este link para poder recuperar el acceso a su cuenta.
                         </a>
 
