@@ -15,6 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const moment_1 = __importDefault(require("moment"));
 const Auth_class_1 = __importDefault(require("../../auth/Auth.class"));
 const usuario_model_1 = __importDefault(require("../../models/usuario.model"));
+const email_config_1 = require("../../config/email.config");
 class AuthController {
     constructor() { }
     SignUp(usuario) {
@@ -35,22 +36,56 @@ class AuthController {
                 if (usuarioFound && !usuarioFound.activado && usuarioFound.tokenActivacion) {
                     const alertaToken = 'Se ha encontrado un token antiguo, se procedió a generar uno nuevo';
                     Object.assign(usuarioFound, usuario);
+                    yield usuarioFound.save();
+                    (0, email_config_1.EnviarEmail)({
+                        from: 'AdmonVet | Administrador de Pacientes de Veterinaria',
+                        to: usuarioFound.email,
+                        subject: 'Activación de Cuenta',
+                        html: `
+                            <p>Saludos, ${usuarioFound.nombre}</p>
+                            <h1>Active su cuenta para utilizar nuestra aplicación</h1>
+
+                            <a href="${process.env.FRONTEND_URL}/confirm/${usuarioFound.tokenActivacion}">
+                                Ingrese al este link para validar la autenticidad de la cuenta.
+                            </a>
+
+                            <p>
+                                Se ha detectado varias veces el uso de este email para intentar registrarse a nuestra aplicación.
+                                Si usted no reconoce este mensaje, ignórelo.
+                            </p>
+                        `
+                    });
                     resolve({
                         status: 201,
                         msg: `Se ha enviado un token de activación a ${usuario.email}`,
                         data: {
-                            alertaToken,
-                            token: usuarioFound.tokenActivacion
+                            alertaToken
                         }
                     });
                     return;
                 }
                 const usuarioCreado = yield new usuario_model_1.default(usuario).save();
+                (0, email_config_1.EnviarEmail)({
+                    from: 'AdmonVet | Administrador de Pacientes de Veterinaria',
+                    to: usuarioCreado.email,
+                    subject: 'Activación de Cuenta',
+                    html: `
+                        <p>Saludos, ${usuarioCreado.nombre}</p>
+                        <h1>Active su cuenta para utilizar nuestra aplicación</h1>
+
+                        <a href="${process.env.FRONTEND_URL}/confirm/${usuarioCreado.tokenActivacion}">
+                            Ingrese al este link para validar la autenticidad de la cuenta.
+                        </a>
+
+                        <p>
+                            Si usted no reconoce este mensaje, ignórelo.
+                        </p>
+                    `
+                });
                 resolve({
                     status: 201,
                     msg: `Se ha enviado un token de activación a ${usuario.email}`,
                     data: {
-                        tokenActivacion: usuarioCreado.tokenActivacion,
                         email: usuarioCreado.email
                     }
                 });
@@ -150,6 +185,7 @@ class AuthController {
         }));
     }
     GenerarTokenRecuperacion(email) {
+        const FORMATO_FECHA_HORA = 'YYYY-MM-DD HH:mm:ss';
         return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const usuarioFound = yield usuario_model_1.default.findOne({ email });
@@ -173,6 +209,27 @@ class AuthController {
                 usuarioFound.tokenReseteo = Auth_class_1.default.genToken();
                 usuarioFound.tokenReseteoExp = new Date((Date.now() + IN_ONE_HOUR));
                 yield usuarioFound.save();
+                (0, email_config_1.EnviarEmail)({
+                    from: 'AdmonVet | Administrador de Pacientes de Veterinaria',
+                    to: usuarioFound.email,
+                    subject: 'Recuperación de Cuenta',
+                    html: `
+                        <p>Saludos, ${usuarioFound.nombre}</p>
+                        <h1>Token de recuperación de cuenta</h1>
+
+                        <a href="${process.env.FRONTEND_URL}/confirm/${usuarioFound.tokenReseteo}">
+                            Ingrese al este link para poder recuperar el acceso a su cuenta.
+                        </a>
+
+                        <p>
+                            El link caducará el ${(0, moment_1.default)(usuarioFound.tokenReseteoExp).format(FORMATO_FECHA_HORA)}.
+                        </p>
+
+                        <p>
+                            Si usted no reconoce este mensaje, ignórelo.
+                        </p>
+                    `
+                });
                 resolve({
                     status: 200,
                     msg: `Token de recuperación generado y enviado a ${usuarioFound.email}`,

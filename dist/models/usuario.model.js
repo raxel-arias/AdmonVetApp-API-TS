@@ -57,7 +57,7 @@ exports.UsuarioSchema.pre('save', function (next) {
         if (!this.isModified('password')) {
             next();
         }
-        this.tokenActivacion = this.activado ? null : Auth_class_1.default.genToken();
+        this.tokenActivacion = !this.activado ? Auth_class_1.default.genToken() : null;
         this.password = yield Auth_class_1.default.genHash(this.password);
     });
 });
