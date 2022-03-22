@@ -25,7 +25,7 @@ class AuthController {
                 if (usuarioFound && usuarioFound.activado) {
                     reject({
                         status: 403,
-                        msg: 'El email ya se encuentra usado por otro usuario',
+                        msg: 'El email ya se encuentra en uso',
                         isError: true,
                         data: {
                             email: usuario.email
@@ -107,7 +107,7 @@ class AuthController {
                 if (!usuarioFound) {
                     reject({
                         status: 404,
-                        msg: 'Usuario no encontrado',
+                        msg: 'Token de activación no encontrado',
                         isError: true
                     });
                     return;
@@ -192,7 +192,7 @@ class AuthController {
                 if (!usuarioFound) {
                     reject({
                         status: 404,
-                        msg: 'Usuario no encontrado',
+                        msg: 'Token de recuperación no encontrado',
                         isError: true
                     });
                     return;
@@ -205,7 +205,7 @@ class AuthController {
                     });
                     return;
                 }
-                const IN_ONE_HOUR = 3600000;
+                const IN_ONE_HOUR = 900000;
                 usuarioFound.tokenReseteo = Auth_class_1.default.genToken();
                 usuarioFound.tokenReseteoExp = new Date((Date.now() + IN_ONE_HOUR));
                 yield usuarioFound.save();
@@ -235,7 +235,7 @@ class AuthController {
                     msg: `Token de recuperación generado y enviado a ${usuarioFound.email}`,
                     data: {
                         tokenRecuperacion: usuarioFound.tokenReseteo,
-                        expiracion: usuarioFound.tokenReseteoExp
+                        expiracion: (0, moment_1.default)(usuarioFound.tokenReseteoExp).format(FORMATO_FECHA_HORA)
                     }
                 });
             }
@@ -257,7 +257,7 @@ class AuthController {
                 if (!usuarioFound) {
                     reject({
                         status: 404,
-                        msg: 'Usuario no encontrado',
+                        msg: 'Token de recuperación no encontrado',
                         isError: true
                     });
                     return;

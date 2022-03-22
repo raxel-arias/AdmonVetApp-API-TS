@@ -10,5 +10,5 @@ AuthRouterChilds.post('/signup', auth_mw_1.SignUp);
 AuthRouterChilds.post('/login', auth_mw_1.Login);
 AuthRouterChilds.get('/confirm/:token', auth_mw_1.ActivarCuenta);
 AuthRouterChilds.post('/recover-account', auth_mw_1.RecuperarCuenta);
-AuthRouterChilds.get('/reset-passsword/:token', auth_mw_1.ValidarTokenRecuperacion);
+AuthRouterChilds.get('/reset-password/:token', auth_mw_1.ValidarTokenRecuperacion);
 AuthRouterChilds.post('/reset-password/:token', auth_mw_1.ResetearPassword);

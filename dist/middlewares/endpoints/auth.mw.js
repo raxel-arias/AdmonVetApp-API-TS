@@ -70,10 +70,10 @@ const ValidarTokenRecuperacion = (req, res) => __awaiter(void 0, void 0, void 0,
 });
 exports.ValidarTokenRecuperacion = ValidarTokenRecuperacion;
 const ResetearPassword = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { token } = req.query;
+    const { token } = req.params;
     const { password } = req.body;
     try {
-        const response = yield new auth_controller_1.default().ResetearPassword(password, token);
+        const response = yield new auth_controller_1.default().ResetearPassword(password, token.toString());
         res.status(response.status).json(response);
     }
     catch (error) {

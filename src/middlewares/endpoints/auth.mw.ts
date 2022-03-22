@@ -63,11 +63,11 @@ export const ValidarTokenRecuperacion = async (req: Request, res: Response): Pro
 }
 
 export const ResetearPassword = async (req: Request, res: Response): Promise<any> => {
-    const {token}: Request['query'] = req.query;
+    const {token}: Request['query'] = req.params;
     const {password}: Request["body"] = req.body;
 
     try {
-        const response: PromiseResponse = await new AuthController().ResetearPassword(password, (token as string));
+        const response: PromiseResponse = await new AuthController().ResetearPassword(password, token!.toString());
 
         res.status(response.status).json(response);
     } catch (error: any) {
