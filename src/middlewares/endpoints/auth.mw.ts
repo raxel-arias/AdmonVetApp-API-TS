@@ -1,13 +1,26 @@
 import { Request, Response, NextFunction } from "express";
+import { Result, ValidationError, validationResult } from "express-validator";
+
 import AuthController from "../../controllers/auth/auth.controller";
 import { PromiseResponse } from "../../interfaces/promise_response.interface";
 
 export const SignUp = async (req: Request, res: Response): Promise<any> => {
     const usuario = req.body;
     
+    const {errors}: Result<ValidationError>['errors'] = validationResult(req);
+
+    if (errors.length) {
+        res.status(400).json({
+            msg: 'Error en las entradas',
+            isError: true,
+            errorDetails: {errors}
+        });
+        return;
+    }
+
     try {
         const response: PromiseResponse = await new AuthController().SignUp(usuario);
-        
+
         res.status(response.status).json(response);
     } catch (error: any) {
         res.status(error.status).json(error);
@@ -16,6 +29,17 @@ export const SignUp = async (req: Request, res: Response): Promise<any> => {
 
 export const Login = async (req: Request, res: Response): Promise<any> => {
     const usuario = req.body;
+
+    const {errors}: Result<ValidationError>['errors'] = validationResult(req);
+
+    if (errors.length) {
+        res.status(400).json({
+            msg: 'Error en las entradas',
+            isError: true,
+            errorDetails: {errors}
+        });
+        return;
+    }
 
     try {
         const response: PromiseResponse = await new AuthController().Login(usuario);

@@ -204,7 +204,7 @@ export default class AuthController {
                 if (!usuarioFound) {
                     reject({
                         status: 404,
-                        msg: 'Token de recuperación no encontrado',
+                        msg: 'Usuario no encontrado',
                         isError: true
                     });
                     return;
@@ -328,7 +328,7 @@ export default class AuthController {
                 if (!usuarioFound) {
                     reject({
                         status: 404,
-                        msg: 'Usuario no encontrado',
+                        msg: 'Token no encontrado',
                         isError: true
                     });
                     return;

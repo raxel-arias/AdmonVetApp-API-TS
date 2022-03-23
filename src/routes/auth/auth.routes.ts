@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { SignUpValidator, LoginValidator, RecuperarCuentaValidator, ResetearPasswordValidator } from "../../validators/auth.validator";
 
 import { 
     ActivarCuenta, 
@@ -14,9 +15,9 @@ export const AuthRouter:Router = Router();
 
 AuthRouter.use('/auth', AuthRouterChilds);
 
-AuthRouterChilds.post('/signup', SignUp);
-AuthRouterChilds.post('/login', Login);
-AuthRouterChilds.get('/confirm/:token', ActivarCuenta);
-AuthRouterChilds.post('/recover-account', RecuperarCuenta);
+AuthRouterChilds.post('/signup', SignUpValidator, SignUp);
+AuthRouterChilds.post('/login', LoginValidator, Login);
+AuthRouterChilds.post('/recover-account', RecuperarCuentaValidator, RecuperarCuenta);
+AuthRouterChilds.post('/reset-password/:token', ResetearPasswordValidator, ResetearPassword);
 AuthRouterChilds.get('/reset-password/:token', ValidarTokenRecuperacion);
-AuthRouterChilds.post('/reset-password/:token', ResetearPassword);
+AuthRouterChilds.get('/confirm/:token', ActivarCuenta);

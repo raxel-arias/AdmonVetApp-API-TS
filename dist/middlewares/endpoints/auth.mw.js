@@ -13,9 +13,19 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ResetearPassword = exports.ValidarTokenRecuperacion = exports.RecuperarCuenta = exports.ActivarCuenta = exports.Login = exports.SignUp = void 0;
+const express_validator_1 = require("express-validator");
 const auth_controller_1 = __importDefault(require("../../controllers/auth/auth.controller"));
 const SignUp = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const usuario = req.body;
+    const { errors } = (0, express_validator_1.validationResult)(req);
+    if (errors.length) {
+        res.status(400).json({
+            msg: 'Error en las entradas',
+            isError: true,
+            errorDetails: { errors }
+        });
+        return;
+    }
     try {
         const response = yield new auth_controller_1.default().SignUp(usuario);
         res.status(response.status).json(response);
@@ -27,6 +37,15 @@ const SignUp = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
 exports.SignUp = SignUp;
 const Login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const usuario = req.body;
+    const { errors } = (0, express_validator_1.validationResult)(req);
+    if (errors.length) {
+        res.status(400).json({
+            msg: 'Error en las entradas',
+            isError: true,
+            errorDetails: { errors }
+        });
+        return;
+    }
     try {
         const response = yield new auth_controller_1.default().Login(usuario);
         res.status(response.status).json(response);
