@@ -65,6 +65,17 @@ export const ActivarCuenta = async (req: Request, res: Response): Promise<any> =
 export const RecuperarCuenta = async (req: Request, res: Response): Promise<any> => {
     const {email} = req.body;
 
+    const {errors}: Result<ValidationError>['errors'] = validationResult(req);
+
+    if (errors.length) {
+        res.status(400).json({
+            msg: 'Error en las entradas',
+            isError: true,
+            errorDetails: {errors}
+        });
+        return;
+    }
+
     try {
         const response: PromiseResponse = await new AuthController().GenerarTokenRecuperacion(email);
 
@@ -89,6 +100,17 @@ export const ValidarTokenRecuperacion = async (req: Request, res: Response): Pro
 export const ResetearPassword = async (req: Request, res: Response): Promise<any> => {
     const {token}: Request['query'] = req.params;
     const {password}: Request["body"] = req.body;
+
+    const {errors}: Result<ValidationError>['errors'] = validationResult(req);
+
+    if (errors.length) {
+        res.status(400).json({
+            msg: 'Error en las entradas',
+            isError: true,
+            errorDetails: {errors}
+        });
+        return;
+    }
 
     try {
         const response: PromiseResponse = await new AuthController().ResetearPassword(password, token!.toString());
