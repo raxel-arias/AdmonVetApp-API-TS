@@ -1,11 +1,24 @@
 import {Request, Response} from 'express';
 
-import PacienteController from '../../controllers/paciente.controller';
+import { Result, ValidationError, validationResult } from 'express-validator';
 
+import PacienteController from '../../controllers/paciente.controller';
 import { PromiseResponse } from '../../interfaces/promise_response.interface';
 
 export const NuevoPaciente = async (req: Request, res: Response): Promise<any> => {
     const paciente = req.body;
+
+    const {errors}: Result<ValidationError>['errors'] = validationResult(req);
+
+    if (errors.length) {
+        res.status(400).json({
+            msg: 'Error en las entradas',
+            isError: true,
+            errorDetails: {errors}
+        });
+        return;
+    }
+
     const {userId}: Request['user'] = req.user;
     paciente.veterinario_id = userId;
 
@@ -39,6 +52,18 @@ export const ListadoPacientes = async (req: Request, res: Response): Promise<any
 
 export const ActualizarInfoPaciente = async (req: Request, res: Response): Promise<any> => {
     const paciente = req.body;
+
+    const {errors}: Result<ValidationError>['errors'] = validationResult(req);
+
+    if (errors.length) {
+        res.status(400).json({
+            msg: 'Error en las entradas',
+            isError: true,
+            errorDetails: {errors}
+        });
+        return;
+    }
+
     const {userId}: Request["user"] = req.user;
 
     paciente._id = req.params.id;
@@ -54,11 +79,12 @@ export const ActualizarInfoPaciente = async (req: Request, res: Response): Promi
 }
 
 export const EliminarPaciente = async (req: Request, res: Response): Promise<any> => {
-    const paciente = req.body;
     const {userId}: Request['user'] = req.user;
 
-    paciente._id = req.params.id;
-    paciente.veterinario_id = userId;
+    const paciente = {
+        _id: req.params.id,
+        veterinario_id: userId
+    }
     
     try {
         const response: PromiseResponse = await new PacienteController().EliminarPaciente(paciente);

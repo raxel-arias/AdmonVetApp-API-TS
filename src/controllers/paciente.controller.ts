@@ -131,7 +131,13 @@ export default class PacienteController {
 
                 const pacienteDesactualizado = ClonarObjeto(pacienteFound);
                 
-                Object.assign(pacienteFound, pacienteEditar);
+                //Sobreescribir sin perder las claves sin reemplazar del antiguo objeto propietario dentro de pacienteFound
+                Object.assign(pacienteFound, pacienteEditar, {
+                    propietario: {
+                        ...pacienteFound.propietario,
+                        ...pacienteEditar.propietario
+                    }
+                });
 
                 await pacienteFound.save();
 
@@ -201,6 +207,14 @@ export default class PacienteController {
                     }
                 });
             } catch (error: any) {
+                if (error.name === 'CastError') {
+                    reject({
+                        status: 404,
+                        msg: 'Paciente no encontrado',
+                        isError: true
+                    });
+                    return;
+                }
                 reject({
                     status: 500,
                     msg: 'Ocurrió un error al eliminar el paciente',

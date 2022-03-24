@@ -137,7 +137,10 @@ class PacienteController {
                 //Se separan los datos sensibles (que no deben ser manipulados)
                 let { _id, veterinario_id } = paciente, pacienteEditar = __rest(paciente, ["_id", "veterinario_id"]);
                 const pacienteDesactualizado = (0, objects_utils_1.ClonarObjeto)(pacienteFound);
-                Object.assign(pacienteFound, pacienteEditar);
+                //Sobreescribir sin perder las claves sin reemplazar del antiguo objeto propietario dentro de pacienteFound
+                Object.assign(pacienteFound, pacienteEditar, {
+                    propietario: Object.assign(Object.assign({}, pacienteFound.propietario), pacienteEditar.propietario)
+                });
                 yield pacienteFound.save();
                 resolve({
                     status: 200,
@@ -200,6 +203,14 @@ class PacienteController {
                 });
             }
             catch (error) {
+                if (error.name === 'CastError') {
+                    reject({
+                        status: 404,
+                        msg: 'Paciente no encontrado',
+                        isError: true
+                    });
+                    return;
+                }
                 reject({
                     status: 500,
                     msg: 'Ocurrió un error al eliminar el paciente',

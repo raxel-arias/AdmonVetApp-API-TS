@@ -68,6 +68,15 @@ const ActivarCuenta = (req, res) => __awaiter(void 0, void 0, void 0, function* 
 exports.ActivarCuenta = ActivarCuenta;
 const RecuperarCuenta = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { email } = req.body;
+    const { errors } = (0, express_validator_1.validationResult)(req);
+    if (errors.length) {
+        res.status(400).json({
+            msg: 'Error en las entradas',
+            isError: true,
+            errorDetails: { errors }
+        });
+        return;
+    }
     try {
         const response = yield new auth_controller_1.default().GenerarTokenRecuperacion(email);
         res.status(response.status).json(response);
@@ -91,6 +100,15 @@ exports.ValidarTokenRecuperacion = ValidarTokenRecuperacion;
 const ResetearPassword = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { token } = req.params;
     const { password } = req.body;
+    const { errors } = (0, express_validator_1.validationResult)(req);
+    if (errors.length) {
+        res.status(400).json({
+            msg: 'Error en las entradas',
+            isError: true,
+            errorDetails: { errors }
+        });
+        return;
+    }
     try {
         const response = yield new auth_controller_1.default().ResetearPassword(password, token.toString());
         res.status(response.status).json(response);

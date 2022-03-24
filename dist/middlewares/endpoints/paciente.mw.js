@@ -24,9 +24,19 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.EliminarPaciente = exports.ActualizarInfoPaciente = exports.ListadoPacientes = exports.NuevoPaciente = void 0;
+const express_validator_1 = require("express-validator");
 const paciente_controller_1 = __importDefault(require("../../controllers/paciente.controller"));
 const NuevoPaciente = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const paciente = req.body;
+    const { errors } = (0, express_validator_1.validationResult)(req);
+    if (errors.length) {
+        res.status(400).json({
+            msg: 'Error en las entradas',
+            isError: true,
+            errorDetails: { errors }
+        });
+        return;
+    }
     const { userId } = req.user;
     paciente.veterinario_id = userId;
     try {
@@ -53,6 +63,15 @@ const ListadoPacientes = (req, res) => __awaiter(void 0, void 0, void 0, functio
 exports.ListadoPacientes = ListadoPacientes;
 const ActualizarInfoPaciente = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const paciente = req.body;
+    const { errors } = (0, express_validator_1.validationResult)(req);
+    if (errors.length) {
+        res.status(400).json({
+            msg: 'Error en las entradas',
+            isError: true,
+            errorDetails: { errors }
+        });
+        return;
+    }
     const { userId } = req.user;
     paciente._id = req.params.id;
     paciente.veterinario_id = userId;
@@ -66,10 +85,11 @@ const ActualizarInfoPaciente = (req, res) => __awaiter(void 0, void 0, void 0, f
 });
 exports.ActualizarInfoPaciente = ActualizarInfoPaciente;
 const EliminarPaciente = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const paciente = req.body;
     const { userId } = req.user;
-    paciente._id = req.params.id;
-    paciente.veterinario_id = userId;
+    const paciente = {
+        _id: req.params.id,
+        veterinario_id: userId
+    };
     try {
         const response = yield new paciente_controller_1.default().EliminarPaciente(paciente);
         res.status(response.status).json(response);
