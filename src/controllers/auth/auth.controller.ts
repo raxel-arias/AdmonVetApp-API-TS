@@ -140,7 +140,7 @@ export default class AuthController {
     public Login(usuario: UsuarioLogin): Promise<PromiseResponse | ResponseError> {
         return new Promise(async (resolve: (info: PromiseResponse) => void, reject: (reason: ResponseError) => void) => {
             try {
-                const usuarioFound = await UsuarioModel.findOne({email: usuario.email});
+                const usuarioFound = await UsuarioModel.findOne({email: usuario.email}).select('-__v -tokenActivacion -tokenReseteo -tokenReseteoExp');
 
                 if (!usuarioFound) {
                     reject({
@@ -179,7 +179,13 @@ export default class AuthController {
                     status: 200,
                     msg: 'Inicio de Sesión correcto',
                     data: {
-                        usuarioFound,
+                        usuarioFound: {
+                            _id: usuarioFound.id,
+                            nombre: usuarioFound.nombre,
+                            apellido: usuarioFound.apellido,
+                            email: usuarioFound.email,
+                            telefono: usuarioFound.telefono
+                        },
                         jwtToken
                     }
                 });
