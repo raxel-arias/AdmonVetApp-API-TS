@@ -7,6 +7,46 @@ import { ClonarObjeto } from "../utils/objects.utils";
 export default class UsuarioController {
     constructor() {}
 
+    public ObtenerPerfil(usuarioId: string): Promise<PromiseResponse | ResponseError> {
+        return new Promise(async (resolve: (args: PromiseResponse) => void, reject: (reason: ResponseError) => void) => {
+            try {
+                const usuarioFound = await UsuarioModel.findById(usuarioId).select('-password -tokenActivacion -tokenReseteo -tokenReseteoExp -activado');
+
+                if (!usuarioFound) {
+                    reject({
+                        status: 404,
+                        msg: 'Usuario no encontrado',
+                        isError: true
+                    })
+                    return;
+                }
+
+                resolve({
+                    status: 200,
+                    msg: 'Usuario encontrado',
+                    data: {
+                        usuario: usuarioFound
+                    }
+                });
+            } catch (error: any) {
+                if (error.name === 'CastError') {
+                    reject({
+                        status: 404,
+                        msg: 'Usuario no encontrado',
+                        isError: true
+                    });
+                    return;
+                }
+                reject({
+                    status: 500,
+                    msg: 'Hubo un error al consultar el perfil',
+                    isError: true,
+                    errorDetails: error
+                });
+            }
+        });
+    }
+
     public ActualizarInfo(usuario: UsuarioUpdate): Promise<PromiseResponse | ResponseError> {
         return new Promise(async (resolve: (args: PromiseResponse) => void, reject: (reason: ResponseError) => void) => {
             try {

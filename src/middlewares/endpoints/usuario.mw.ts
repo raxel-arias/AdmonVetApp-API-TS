@@ -13,3 +13,15 @@ export const ActualizarInfo = async (req: Request, res: Response): Promise<any> 
         res.status(error.status).json(error);
     }
 }
+
+export const ObtenerPerfil = async (req: Request, res: Response): Promise<any> => {
+    const {userId}: Request['user'] = req.user;
+
+    try {
+        const response = await new UsuarioController().ObtenerPerfil(userId);
+
+        res.status(response.status).json(response);
+    } catch (error: any) {
+        res.status(error.status).json(error);
+    }
+}
