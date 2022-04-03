@@ -3,6 +3,7 @@ import { ActualizarInfoPaciente, EliminarPaciente, ListadoPacientes, NuevoPacien
 
 import Auth from '../../auth/Auth.class';
 import { NuevoPacienteValidator, ActualizarPacienteValidator } from "../../validators/paciente.validator";
+import { ValidarExistenciaUsuario } from "../../middlewares/auth.mw";
 
 const PacienteRouterChilds: Router = Router({mergeParams: true});
 
@@ -10,7 +11,7 @@ export const PacienteRouter: Router = Router();
 
 PacienteRouter.use('/pacientes', PacienteRouterChilds);
 
-PacienteRouter.get('/pacientes', Auth.ValidateJWT, ListadoPacientes);
-PacienteRouterChilds.post('/nuevo', Auth.ValidateJWT, NuevoPacienteValidator, NuevoPaciente);
-PacienteRouterChilds.put('/editar/:id', Auth.ValidateJWT, ActualizarPacienteValidator, ActualizarInfoPaciente);
-PacienteRouterChilds.delete('/eliminar/:id', Auth.ValidateJWT, EliminarPaciente);
+PacienteRouter.get('/pacientes', Auth.ValidateJWT, ValidarExistenciaUsuario, ListadoPacientes);
+PacienteRouterChilds.post('/nuevo', Auth.ValidateJWT, ValidarExistenciaUsuario, NuevoPacienteValidator, NuevoPaciente);
+PacienteRouterChilds.put('/editar/:id', Auth.ValidateJWT, ValidarExistenciaUsuario, ActualizarPacienteValidator, ActualizarInfoPaciente);
+PacienteRouterChilds.delete('/eliminar/:id', Auth.ValidateJWT, ValidarExistenciaUsuario, EliminarPaciente);
