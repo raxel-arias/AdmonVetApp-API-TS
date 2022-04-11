@@ -46,9 +46,9 @@ export default class Auth {
             });
             return;
         }
-
-        let token:string = authHeaders.split(' ')[1].trim();
-
+    
+        let token:string = authHeaders.split(' ')[1];
+    
         if (!token) {
             res.status(404).json({
                 msg: 'No existe un token para validar',
@@ -56,8 +56,8 @@ export default class Auth {
             });
             return;
         }
-
-        const decodedData = jwt.verify(token, process.env.JWT_SECRET??'', (err: any, user: any) => {
+    
+        const decodedData = jwt.verify(token.trim(), process.env.JWT_SECRET??'', (err: any, user: any) => {
             
             if (err) {
                 res.status(403).json({

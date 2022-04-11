@@ -21,6 +21,11 @@ export interface PacienteEditar {
     fechaAlta?: Date,
 }
 
+export interface PacienteActualizarEstado {
+    readonly _id: string,
+    readonly veterinario_id: string
+}
+
 export interface PacienteEliminar {
     readonly _id: string,
     readonly veterinario_id: string

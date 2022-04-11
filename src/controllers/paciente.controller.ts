@@ -2,7 +2,7 @@ import moment from 'moment';
 
 import PacienteModel from '../models/paciente.model';
 import UsuarioModel from '../models/usuario.model';
-import { FiltrosPacienteBusqueda, PacienteEditar, PacienteNuevo, PacienteEliminar } from '../interfaces/paciente.interface';
+import { FiltrosPacienteBusqueda, PacienteEditar, PacienteNuevo, PacienteEliminar, PacienteActualizarEstado } from '../interfaces/paciente.interface';
 import {PromiseResponse, ResponseError} from '../interfaces/promise_response.interface';
 import { ClonarObjeto } from '../utils/objects.utils';
 
@@ -121,7 +121,10 @@ export default class PacienteController {
                     reject({
                         status: 403,
                         msg: 'No se puede actualizar el paciente',
-                        isError: true
+                        isError: true,
+                        errorDetails: {
+                            msg: 'Acción denegada'
+                        }
                     });
                     return;
                 }
@@ -159,6 +162,62 @@ export default class PacienteController {
             } 
         });
     }
+
+    public ActualizarEstadoPaciente(paciente: PacienteActualizarEstado): Promise<PromiseResponse | ResponseError> {
+        return new Promise (async (resolve: (info: PromiseResponse) => void, reject: (reason: ResponseError) => void) => {
+            try {
+                const pacienteFound = await PacienteModel.findById(paciente._id);
+
+                if (!pacienteFound) {
+                    reject({
+                        status: 404,
+                        msg: 'Paciente no encontrado',
+                        isError: true
+                    });
+                    return;
+                }
+
+                if (pacienteFound.veterinario_id.toString() !== paciente.veterinario_id.toString()) {
+                    reject({
+                        status: 403,
+                        msg: 'No se puede actualizar el estado del paciente',
+                        isError: true,
+                        errorDetails: {
+                            msg: 'Acción denegada'
+                        }
+                    });
+                    return;
+                }
+
+                pacienteFound.pendiente = pacienteFound.pendiente ? false : true;
+
+                await pacienteFound.save();
+                
+                resolve({
+                    status: 200,
+                    msg: 'Estado del paciente actualizado',
+                    data: {
+                        nuevoEstado: pacienteFound.pendiente
+                    }
+                });
+            } catch (error: any) {
+                if (error.name === 'CastError') {
+                    reject({
+                        status: 404,
+                        msg: 'Paciente no Encontrado',
+                        isError: true
+                    });
+                    return;
+                }
+                reject({
+                    status: 500,
+                    msg: 'Hubo un error al actualizar el estado del paciente',
+                    isError: true,
+                    errorDetails: error
+                });
+            }
+        });
+    } 
 
     public EliminarPaciente(paciente: PacienteEliminar): Promise<PromiseResponse | ResponseError> {
         return new Promise (async (resolve: (info: PromiseResponse) => void, reject: (reason: ResponseError) => void) => {

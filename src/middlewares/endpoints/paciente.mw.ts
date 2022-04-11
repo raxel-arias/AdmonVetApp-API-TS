@@ -9,7 +9,7 @@ export const NuevoPaciente = async (req: Request, res: Response): Promise<any> =
     const paciente = req.body;
 
     const {errors}: Result<ValidationError>['errors'] = validationResult(req);
-
+    
     if (errors.length) {
         res.status(400).json({
             msg: 'Error en las entradas',
@@ -72,6 +72,21 @@ export const ActualizarInfoPaciente = async (req: Request, res: Response): Promi
     try {
         const response: PromiseResponse = await new PacienteController().ActualizarPaciente(paciente);
     
+        res.status(response.status).json(response);
+    } catch (error: any) {
+        res.status(error.status).json(error);
+    }
+}
+
+export const ActualizarEstadoPaciente = async (req: Request, res: Response): Promise<any> => {
+    const {userId}: Request['user'] = req.user;
+
+    const _id = req.params.id;
+    const veterinario_id = userId;
+
+    try {
+        const response = await new PacienteController().ActualizarEstadoPaciente({_id, veterinario_id});
+
         res.status(response.status).json(response);
     } catch (error: any) {
         res.status(error.status).json(error);
