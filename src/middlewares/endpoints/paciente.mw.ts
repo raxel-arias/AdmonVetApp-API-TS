@@ -83,7 +83,6 @@ export const ActualizarEstadoPaciente = async (req: Request, res: Response): Pro
 
     const _id = req.params.id;
     const veterinario_id = userId;
-
     try {
         const response = await new PacienteController().ActualizarEstadoPaciente({_id, veterinario_id});
 

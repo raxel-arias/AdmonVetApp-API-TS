@@ -17,6 +17,10 @@ export const PacienteSchema = new Schema<IPacienteModel>({
             type: String
         }
     },
+    sintomas: {
+        type: String,
+        required: true
+    },
     fechaAlta: {
         type: Date,
         required: true
