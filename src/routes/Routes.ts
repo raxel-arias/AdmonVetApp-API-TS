@@ -9,6 +9,15 @@ export default class Routes {
         this.Route404();
     }
 
+    private TestRoute(): void {
+        WEB_SERVER.use(ROUTE_DECLARATIONS.path, (req: Request, res: Response) => {
+            res.status(200).json({
+                msg: "AdmonVET API",
+                author: "Raxel Arias"
+            });
+        })
+    }
+
     private EnableRoutes(): void {
         ROUTE_DECLARATIONS.routers.forEach((router: Router): void => {
             WEB_SERVER.use(ROUTE_DECLARATIONS.path, router);
