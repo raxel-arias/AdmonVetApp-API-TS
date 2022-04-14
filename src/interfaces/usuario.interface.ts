@@ -11,9 +11,11 @@ export interface UsuarioLogin {
 }
 
 export interface UsuarioUpdate {
+    _id: string,
     nombre?: string,
     apellido?: string,
     telefono?: string,
     email: string,
-    password: string
+    password: string,
+    previousPassword: string
 }

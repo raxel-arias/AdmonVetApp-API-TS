@@ -1,4 +1,5 @@
 import {Router} from 'express';
+import { ActualizarInfoValidator } from '../../validators/usuario.validator';
 import Auth from '../../auth/Auth.class';
 
 import { ActualizarInfo, ObtenerPerfil } from '../../middlewares/endpoints/usuario.mw';
@@ -9,4 +10,4 @@ export const UsuarioRouter = Router();
 
 UsuarioRouter.use('/user', UsuarioRouterChilds);
 UsuarioRouterChilds.get('/', Auth.ValidateJWT, ObtenerPerfil)
-UsuarioRouterChilds.put('/actualizar', ActualizarInfo);
+UsuarioRouterChilds.put('/actualizar', Auth.ValidateJWT, ActualizarInfoValidator, ActualizarInfo);

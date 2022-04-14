@@ -50,7 +50,7 @@ export default class UsuarioController {
     public ActualizarInfo(usuario: UsuarioUpdate): Promise<PromiseResponse | ResponseError> {
         return new Promise(async (resolve: (args: PromiseResponse) => void, reject: (reason: ResponseError) => void) => {
             try {
-                let usuarioFound = await UsuarioModel.findOne({email: usuario.email});
+                let usuarioFound = await UsuarioModel.findById(usuario._id);
 
                 if (!usuarioFound) {
                     reject({
@@ -61,7 +61,7 @@ export default class UsuarioController {
                     return;
                 }
 
-                const passwordValido = await Auth.validateHashBcrypt(usuario.password, usuarioFound.password);
+                const passwordValido = await Auth.validateHashBcrypt(usuario.previousPassword, usuarioFound.password);
 
                 if (!passwordValido) {
                     reject({
@@ -91,7 +91,7 @@ export default class UsuarioController {
                     msg: 'Usuario actualizado correctamente',
                     data: {
                         usuarioOutdated,
-                        usuarioUptaded: usuarioFound
+                        usuarioUpdated: usuarioFound
                     }
                 });
             } catch (error) {

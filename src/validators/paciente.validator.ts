@@ -62,7 +62,7 @@ export const ActualizarPacienteValidator: ValidationChain[] = [
         body('propietario.email')
             .optional()
             .not().isEmpty().withMessage('Propietario: Email vacío')
-            .isEmail().withMessage('Debe ser un email')
+            .isEmail().withMessage('Debe ser un email válido')
             .trim()
             .toUpperCase(),
     body('sintomas')
