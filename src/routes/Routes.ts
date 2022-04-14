@@ -5,6 +5,7 @@ import { ROUTE_DECLARATIONS } from "./routes.index";
 export default class Routes {
     public constructor() {
         this.CorsHeaders();
+        this.TestRoute();
         this.EnableRoutes();
         this.Route404();
     }
